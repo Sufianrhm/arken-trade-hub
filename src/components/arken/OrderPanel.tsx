@@ -164,7 +164,7 @@ export function OrderPanel({
           <Button
             onClick={() => handlePlaceOrder('long')}
             disabled={!canTrade}
-            className="bg-success hover:bg-success/90 text-success-foreground font-semibold py-6 glow-success transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-success hover:bg-success/90 text-foreground font-semibold py-6 glow-success transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <TrendingUp className="w-4 h-4 mr-2" />
             LONG
