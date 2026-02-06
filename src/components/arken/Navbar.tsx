@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Settings, Wallet } from 'lucide-react';
 import type { TradingMode } from '@/types/trading';
+import arkenIcon from '@/assets/arken-icon.png';
 
 interface NavbarProps {
   mode: TradingMode;
@@ -22,13 +23,18 @@ export function Navbar({ mode, balance, onConnectClick, onDisconnect }: NavbarPr
         </div>
 
         {/* Center - Logo */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
+          <img 
+            src={arkenIcon} 
+            alt="Arken" 
+            className="w-7 h-7 md:w-8 md:h-8"
+          />
           <span 
-            className="text-2xl tracking-[0.2em] text-foreground"
+            className="text-xl md:text-2xl text-foreground hidden sm:block"
             style={{ 
               fontFamily: "'SF Pro Display', 'Inter', system-ui, sans-serif",
               fontWeight: 600,
-              letterSpacing: '0.15em',
+              letterSpacing: '0.12em',
             }}
           >
             ARKEN
