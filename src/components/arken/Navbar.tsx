@@ -23,15 +23,22 @@ export function Navbar({ mode, balance, onConnectClick, onDisconnect }: NavbarPr
 
         {/* Center - Logo */}
         <div className="flex items-center gap-3">
-          <span className="text-2xl font-bold tracking-tight text-foreground">
+          <span 
+            className="text-2xl tracking-[0.2em] text-foreground"
+            style={{ 
+              fontFamily: "'SF Pro Display', 'Inter', system-ui, sans-serif",
+              fontWeight: 600,
+              letterSpacing: '0.15em',
+            }}
+          >
             ARKEN
           </span>
           {mode === 'paper' && (
             <Badge 
               variant="outline" 
-              className="text-xs bg-primary/10 text-primary border-primary/30 animate-pulse-glow"
+              className="text-[10px] uppercase tracking-wider bg-primary/10 text-primary border-primary/30"
             >
-              Paper Mode
+              Paper
             </Badge>
           )}
         </div>
