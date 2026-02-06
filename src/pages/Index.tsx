@@ -118,8 +118,8 @@ const Index = () => {
         onDisconnect={handleDisconnect}
       />
 
-      <main className="pt-20 pb-8 px-4 max-w-7xl mx-auto">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      <main className="pt-16 pb-6 px-3 md:px-4 max-w-[1600px] mx-auto">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <TabsList className="w-full max-w-md mx-auto glass-panel bg-muted/50 p-1">
             <TabsTrigger 
               value="trade" 
