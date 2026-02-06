@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { MarketSelector } from './MarketSelector';
 import { PriceDisplay } from './PriceDisplay';
-import { ChartPanel } from './ChartPanel';
+import { ChartPanel, type Timeframe } from './ChartPanel';
 import { OrderPanel } from './OrderPanel';
+import { OrderBook } from './OrderBook';
 import { PositionsTable } from './PositionsTable';
+import { useBinanceWebSocket } from '@/hooks/useBinanceWebSocket';
 import type { MarketSymbol, PriceData, Position, OrderSide, OrderType } from '@/types/trading';
 import { MARKET_DISPLAY_NAMES } from '@/types/trading';
 
@@ -36,30 +38,42 @@ export function TradeTab({
   onConnectClick,
 }: TradeTabProps) {
   const [selectedMarket, setSelectedMarket] = useState<MarketSymbol>('BTCUSDT');
+  const [timeframe, setTimeframe] = useState<Timeframe>('15m');
 
   const currentPriceData = prices[selectedMarket];
   const currentPrice = currentPriceData?.price ?? 0;
 
+  const { klines, orderBook, isConnected: wsConnected } = useBinanceWebSocket(selectedMarket, timeframe, currentPrice);
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Market Header */}
-      <div className="glass-panel p-4 flex flex-col md:flex-row md:items-center gap-4">
+      <div className="glass-panel p-3 flex flex-col md:flex-row md:items-center gap-3">
         <MarketSelector value={selectedMarket} onChange={setSelectedMarket} />
         <PriceDisplay data={currentPriceData} isLoading={isLoadingPrices} />
       </div>
 
       {/* Main Trading Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Chart - Takes 2 columns on large screens */}
-        <div className="lg:col-span-2">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">
+        {/* Order Book - Left Side */}
+        <div className="lg:col-span-2 hidden lg:block h-[420px]">
+          <OrderBook data={orderBook} currentPrice={currentPrice} />
+        </div>
+
+        {/* Chart - Center */}
+        <div className="lg:col-span-7">
           <ChartPanel 
             data={currentPriceData} 
-            symbol={MARKET_DISPLAY_NAMES[selectedMarket]} 
+            symbol={MARKET_DISPLAY_NAMES[selectedMarket]}
+            klines={klines}
+            isWebSocketConnected={wsConnected}
+            onTimeframeChange={setTimeframe}
+            selectedTimeframe={timeframe}
           />
         </div>
 
-        {/* Order Panel */}
-        <div className="lg:col-span-1">
+        {/* Order Panel - Right Side */}
+        <div className="lg:col-span-3">
           <OrderPanel
             symbol={selectedMarket}
             currentPrice={currentPrice}
@@ -69,6 +83,11 @@ export function TradeTab({
             onConnectClick={onConnectClick}
           />
         </div>
+      </div>
+
+      {/* Mobile Order Book */}
+      <div className="lg:hidden h-[300px]">
+        <OrderBook data={orderBook} currentPrice={currentPrice} />
       </div>
 
       {/* Open Positions */}
