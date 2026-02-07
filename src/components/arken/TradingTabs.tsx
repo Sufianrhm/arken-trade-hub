@@ -1,272 +1,179 @@
-import { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
-import { X, Download, TrendingUp, TrendingDown, FileSpreadsheet } from 'lucide-react';
-import type { Position, LimitOrder, Trade, PriceData, MarketSymbol } from '@/types/trading';
-import { MARKET_DISPLAY_NAMES } from '@/types/trading';
+import React, { useState, useEffect } from "react";
+import { usePaperTrading } from "../../hooks/usePaperTrading";
+import { useMarketData } from "../../hooks/useMarketData";
 
-interface TradingTabsProps {
-  positions: Position[];
-  limitOrders: LimitOrder[];
-  tradeHistory: Trade[];
-  prices: Record<MarketSymbol, PriceData>;
-  onClosePosition: (positionId: string, currentPrice: number) => void;
-  onCancelOrder: (orderId: string) => void;
-  onExportCSV: () => string;
+interface Market {
+  symbol: string;
+  price: number;
+  change24h: number;
 }
 
-export function TradingTabs({
-  positions,
-  limitOrders,
-  tradeHistory,
-  prices,
-  onClosePosition,
-  onCancelOrder,
-  onExportCSV,
-}: TradingTabsProps) {
-  const [activeTab, setActiveTab] = useState('positions');
+interface Position {
+  symbol: string;
+  side: string;
+  entryPrice: number;
+  currentPrice: number;
+  size: number;
+  leverage: number;
+  unrealizedPnl: number;
+  timestamp: number;
+}
 
-  const calculatePnL = (position: Position) => {
-    const currentPrice = prices[position.symbol]?.price ?? position.entryPrice;
-    const priceDiff = currentPrice - position.entryPrice;
-    const direction = position.side === 'long' ? 1 : -1;
-    const pnl = (priceDiff / position.entryPrice) * position.size * position.leverage * direction;
-    const pnlPercent = (pnl / position.margin) * 100;
-    return { pnl, pnlPercent, currentPrice };
-  };
+const TradingTabs: React.FC = () => {
+  const { paperBalance, openPositions, placeOrder } = usePaperTrading();
+  const { markets } = useMarketData();
 
-  const formatPrice = (price: number) => {
-    if (price >= 1000) {
-      return price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const safeMarkets: Market[] = markets || [];
+  const safePositions: Position[] = openPositions || [];
+
+  const [selectedMarket, setSelectedMarket] = useState<string>(
+    safeMarkets?.[0]?.symbol || "BTC-PERP"
+  );
+  const [orderType, setOrderType] = useState<"market" | "limit">("market");
+  const [size, setSize] = useState<number>(0);
+  const [price, setPrice] = useState<number>(0);
+  const [leverage, setLeverage] = useState<number>(1);
+
+  useEffect(() => {
+    if (!selectedMarket && safeMarkets.length > 0) {
+      setSelectedMarket(safeMarkets[0].symbol);
     }
-    return price.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 });
-  };
+  }, [safeMarkets, selectedMarket]);
 
-  const handleExport = () => {
-    const csv = onExportCSV();
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `arken_trades_${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const handlePlaceOrder = (side: "long" | "short") => {
+    if (!selectedMarket || size <= 0) return;
+    placeOrder({
+      symbol: selectedMarket,
+      type: orderType,
+      size,
+      price: orderType === "limit" ? price : undefined,
+      leverage,
+      side,
+      timestamp: Date.now(), // ensures timestamp exists
+    });
+    setSize(0);
+    setPrice(0);
   };
 
   return (
-    <div className="glass-panel overflow-hidden">
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <div className="flex items-center justify-between px-4 py-2 border-b border-border/30">
-          <TabsList className="bg-transparent h-auto p-0 gap-4">
-            <TabsTrigger 
-              value="positions" 
-              className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-primary px-0 text-sm"
-            >
-              Positions ({positions.length})
-            </TabsTrigger>
-            <TabsTrigger 
-              value="orders" 
-              className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-primary px-0 text-sm"
-            >
-              Open Orders ({limitOrders.length})
-            </TabsTrigger>
-            <TabsTrigger 
-              value="history" 
-              className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-primary px-0 text-sm"
-            >
-              History
-            </TabsTrigger>
-          </TabsList>
+    <div className="flex flex-col gap-4 p-4 text-white">
+      {/* Market Selector */}
+      <div className="flex items-center gap-2">
+        <select
+          value={selectedMarket}
+          onChange={(e) => setSelectedMarket(e.target.value)}
+          className="bg-gray-800 text-white p-2 rounded"
+        >
+          {safeMarkets.map((m) => (
+            <option key={m.symbol} value={m.symbol}>
+              {m.symbol} | {m.price?.toFixed(2) || "0.00"}
+            </option>
+          ))}
+        </select>
+        <span className="text-gray-400">
+          {safeMarkets.find((m) => m.symbol === selectedMarket)?.change24h?.toFixed(2) || "0.00"}%
+        </span>
+      </div>
 
-          {activeTab === 'history' && tradeHistory.length > 0 && (
-            <Button variant="ghost" size="sm" onClick={handleExport} className="gap-1.5 text-xs">
-              <FileSpreadsheet className="w-3.5 h-3.5" />
-              Export CSV
-            </Button>
-          )}
+      {/* Order Panel */}
+      <div className="flex flex-col md:flex-row gap-2">
+        <select
+          value={orderType}
+          onChange={(e) => setOrderType(e.target.value as "market" | "limit")}
+          className="bg-gray-800 text-white p-2 rounded"
+        >
+          <option value="market">Market</option>
+          <option value="limit">Limit</option>
+        </select>
+
+        {orderType === "limit" && (
+          <input
+            type="number"
+            placeholder="Price"
+            value={price}
+            onChange={(e) => setPrice(Number(e.target.value))}
+            className="bg-gray-800 text-white p-2 rounded"
+          />
+        )}
+
+        <input
+          type="number"
+          placeholder="Size"
+          value={size}
+          onChange={(e) => setSize(Number(e.target.value))}
+          className="bg-gray-800 text-white p-2 rounded"
+        />
+
+        <input
+          type="number"
+          placeholder="Leverage"
+          value={leverage}
+          onChange={(e) => setLeverage(Number(e.target.value))}
+          className="bg-gray-800 text-white p-2 rounded"
+          min={1}
+          max={40}
+        />
+
+        <button
+          onClick={() => handlePlaceOrder("long")}
+          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+        >
+          Long
+        </button>
+
+        <button
+          onClick={() => handlePlaceOrder("short")}
+          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+        >
+          Short
+        </button>
+      </div>
+
+      {/* Paper Trading Balance & Positions */}
+      <div className="mt-4">
+        <h2 className="text-lg">Paper Balance: ${paperBalance?.toFixed(2) || "0.00"}</h2>
+
+        <h3 className="mt-2">Open Positions</h3>
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-left">
+            <thead>
+              <tr>
+                <th className="px-2 py-1">Market</th>
+                <th className="px-2 py-1">Side</th>
+                <th className="px-2 py-1">Entry</th>
+                <th className="px-2 py-1">Price</th>
+                <th className="px-2 py-1">Size</th>
+                <th className="px-2 py-1">Leverage</th>
+                <th className="px-2 py-1">PnL</th>
+                <th className="px-2 py-1">Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              {safePositions.map((pos, i) => (
+                <tr key={i} className="odd:bg-gray-900 even:bg-gray-800">
+                  <td className="px-2 py-1">{pos.symbol || "-"}</td>
+                  <td className="px-2 py-1">{pos.side || "-"}</td>
+                  <td className="px-2 py-1">{pos.entryPrice?.toFixed(2) || "0.00"}</td>
+                  <td className="px-2 py-1">{pos.currentPrice?.toFixed(2) || "0.00"}</td>
+                  <td className="px-2 py-1">{pos.size || 0}</td>
+                  <td className="px-2 py-1">{pos.leverage || 1}x</td>
+                  <td className="px-2 py-1">{pos.unrealizedPnl?.toFixed(2) || "0.00"}</td>
+                  <td className="px-2 py-1">
+                    {pos.timestamp ? new Date(pos.timestamp).toLocaleString() : "-"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
+      </div>
 
-        <TabsContent value="positions" className="m-0">
-          {positions.length === 0 ? (
-            <div className="py-8 text-center text-muted-foreground text-sm">
-              No open positions
-            </div>
-          ) : (
-            <ScrollArea className="max-h-[200px]">
-              <div className="divide-y divide-border/20">
-                {positions.map((position) => {
-                  const { pnl, pnlPercent, currentPrice } = calculatePnL(position);
-                  const isProfit = pnl >= 0;
-                  
-                  return (
-                    <div key={position.id} className="px-4 py-3 hover:bg-muted/20 transition-colors">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <Badge 
-                            variant="outline"
-                            className={position.side === 'long' 
-                              ? 'bg-success/10 text-success border-success/30' 
-                              : 'bg-destructive/10 text-destructive border-destructive/30'
-                            }
-                          >
-                            {position.side === 'long' ? <TrendingUp className="w-3 h-3 mr-1" /> : <TrendingDown className="w-3 h-3 mr-1" />}
-                            {position.side.toUpperCase()}
-                          </Badge>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium text-foreground text-sm">
-                                {MARKET_DISPLAY_NAMES[position.symbol]}
-                              </span>
-                              <span className="text-xs text-muted-foreground">{position.leverage}x</span>
-                              <span className="text-[10px] text-muted-foreground uppercase">{position.marginMode}</span>
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              Entry: ${formatPrice(position.entryPrice)} | Liq: ${formatPrice(position.liquidationPrice)}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-4">
-                          <div className="text-right">
-                            <div className={`font-semibold tabular-nums text-sm ${isProfit ? 'text-success' : 'text-destructive'}`}>
-                              {isProfit ? '+' : ''}{pnl.toFixed(2)} USDC
-                            </div>
-                            <div className={`text-xs tabular-nums ${isProfit ? 'text-success' : 'text-destructive'}`}>
-                              {isProfit ? '+' : ''}{pnlPercent.toFixed(2)}%
-                            </div>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => onClosePosition(position.id, currentPrice)}
-                            className="h-7 px-2 text-xs hover:bg-destructive/10 hover:text-destructive"
-                          >
-                            <X className="w-3.5 h-3.5" />
-                          </Button>
-                        </div>
-                      </div>
-
-                      {(position.takeProfit || position.stopLoss) && (
-                        <div className="mt-2 flex gap-3 text-[10px]">
-                          {position.takeProfit && (
-                            <span className="text-success">TP: ${formatPrice(position.takeProfit)}</span>
-                          )}
-                          {position.stopLoss && (
-                            <span className="text-destructive">SL: ${formatPrice(position.stopLoss)}</span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </ScrollArea>
-          )}
-        </TabsContent>
-
-        <TabsContent value="orders" className="m-0">
-          {limitOrders.length === 0 ? (
-            <div className="py-8 text-center text-muted-foreground text-sm">
-              No open orders
-            </div>
-          ) : (
-            <ScrollArea className="max-h-[200px]">
-              <div className="divide-y divide-border/20">
-                {limitOrders.map((order) => (
-                  <div key={order.id} className="px-4 py-3 hover:bg-muted/20 transition-colors">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Badge 
-                          variant="outline"
-                          className={order.side === 'long' 
-                            ? 'bg-success/10 text-success border-success/30' 
-                            : 'bg-destructive/10 text-destructive border-destructive/30'
-                          }
-                        >
-                          {order.side.toUpperCase()}
-                        </Badge>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-foreground text-sm">
-                              {MARKET_DISPLAY_NAMES[order.symbol]}
-                            </span>
-                            <span className="text-xs text-muted-foreground">{order.leverage}x</span>
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            Limit: ${formatPrice(order.price)} | Size: ${order.size.toFixed(2)}
-                          </div>
-                        </div>
-                      </div>
-
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onCancelOrder(order.id)}
-                        className="h-7 px-2 text-xs hover:bg-destructive/10 hover:text-destructive"
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-          )}
-        </TabsContent>
-
-        <TabsContent value="history" className="m-0">
-          {tradeHistory.length === 0 ? (
-            <div className="py-8 text-center text-muted-foreground text-sm">
-              No trade history
-            </div>
-          ) : (
-            <ScrollArea className="max-h-[200px]">
-              <div className="divide-y divide-border/20">
-                {tradeHistory.slice(0, 20).map((trade) => {
-                  const isProfit = trade.pnl >= 0;
-                  
-                  return (
-                    <div key={trade.id} className="px-4 py-3 hover:bg-muted/20 transition-colors">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <Badge 
-                            variant="outline"
-                            className={trade.side === 'long' 
-                              ? 'bg-success/10 text-success border-success/30' 
-                              : 'bg-destructive/10 text-destructive border-destructive/30'
-                            }
-                          >
-                            {trade.side.toUpperCase()}
-                          </Badge>
-                          <div>
-                            <span className="font-medium text-foreground text-sm">
-                              {MARKET_DISPLAY_NAMES[trade.symbol]}
-                            </span>
-                            <div className="text-xs text-muted-foreground">
-                              {formatPrice(trade.entryPrice)} → {formatPrice(trade.exitPrice)}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="text-right">
-                          <div className={`font-semibold tabular-nums text-sm ${isProfit ? 'text-success' : 'text-destructive'}`}>
-                            {isProfit ? '+' : ''}{trade.pnl.toFixed(2)} USDC
-                          </div>
-                          <div className="text-[10px] text-muted-foreground">
-                            {new Date(trade.closedAt).toLocaleDateString()}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </ScrollArea>
-          )}
-        </TabsContent>
-      </Tabs>
+      {/* Live Trading Placeholder */}
+      <div className="mt-4 text-gray-400">
+        <p>Live Trading: Coming Soon! Join the waitlist in Connect Wallet.</p>
+      </div>
     </div>
   );
-}
+};
+
+export default TradingTabs;
