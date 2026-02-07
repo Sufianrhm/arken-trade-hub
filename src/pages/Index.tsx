@@ -1,22 +1,25 @@
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Navbar } from '@/components/arken/Navbar';
-import { ConnectWalletModal } from '@/components/arken/ConnectWalletModal';
+import { AuthModal } from '@/components/arken/AuthModal';
+import { AccountHub } from '@/components/arken/AccountHub';
 import { WaitlistModal } from '@/components/arken/WaitlistModal';
 import { TradeTab } from '@/components/arken/TradeTab';
 import { PortfolioTab } from '@/components/arken/PortfolioTab';
 import { AIIntelligenceTab } from '@/components/arken/AIIntelligenceTab';
+import { Leaderboard } from '@/components/arken/Leaderboard';
 import { Footer } from '@/components/arken/Footer';
 import { useTradingStore } from '@/hooks/useTradingStore';
 import { usePriceData } from '@/hooks/usePriceData';
 import { toast } from '@/hooks/use-toast';
 import { MARKET_SYMBOLS, MARKET_DISPLAY_NAMES } from '@/types/trading';
 import type { MarketSymbol, OrderSide, OrderType } from '@/types/trading';
-import { LineChart, Wallet, Brain } from 'lucide-react';
+import { LineChart, Wallet, Brain, Trophy } from 'lucide-react';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('trade');
-  const [showConnectModal, setShowConnectModal] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showAccountHub, setShowAccountHub] = useState(false);
   const [showWaitlistModal, setShowWaitlistModal] = useState(false);
 
   const {
@@ -24,31 +27,28 @@ const Index = () => {
     balance,
     positions,
     tradeHistory,
+    limitOrders,
+    marginMode,
+    currentUser,
     isLoaded,
     setMode,
+    setMarginMode,
     disconnect,
     openPosition,
     closePosition,
     addToWaitlist,
+    signUp,
+    login,
+    logout,
+    deposit,
+    withdraw,
+    placeLimitOrder,
+    cancelLimitOrder,
+    getLeaderboard,
+    exportTradesCSV,
   } = useTradingStore();
 
-  const { prices, isLoading: isLoadingPrices, getPriceMap } = usePriceData(MARKET_SYMBOLS);
-
-  const handlePaperTrading = () => {
-    setMode('paper');
-    toast({
-      title: "Paper Trading Activated",
-      description: "You're now trading with $10,000 virtual USDC. Good luck!",
-    });
-  };
-
-  const handleDisconnect = () => {
-    disconnect();
-    toast({
-      title: "Disconnected",
-      description: "Your session has been disconnected.",
-    });
-  };
+  const { prices, isLoading: isLoadingPrices } = usePriceData(MARKET_SYMBOLS);
 
   const handlePlaceOrder = (order: {
     symbol: MarketSymbol;
@@ -57,23 +57,47 @@ const Index = () => {
     size: number;
     price: number;
     leverage: number;
+    takeProfit?: number;
+    stopLoss?: number;
   }) => {
     const margin = order.size / order.leverage;
     
-    openPosition({
-      symbol: order.symbol,
-      side: order.side,
-      entryPrice: order.price,
-      size: order.size,
-      leverage: order.leverage,
-      timestamp: Date.now(),
-      margin,
-    });
+    if (order.type === 'limit') {
+      placeLimitOrder({
+        symbol: order.symbol,
+        side: order.side,
+        type: 'limit',
+        price: order.price,
+        size: order.size,
+        leverage: order.leverage,
+        marginMode,
+        takeProfit: order.takeProfit,
+        stopLoss: order.stopLoss,
+      });
 
-    toast({
-      title: "Position Opened",
-      description: `${order.side.toUpperCase()} ${MARKET_DISPLAY_NAMES[order.symbol]} @ $${order.price.toLocaleString()} with ${order.leverage}x leverage`,
-    });
+      toast({
+        title: "Limit Order Placed",
+        description: `${order.side.toUpperCase()} ${MARKET_DISPLAY_NAMES[order.symbol]} @ $${order.price.toLocaleString()}`,
+      });
+    } else {
+      openPosition({
+        symbol: order.symbol,
+        side: order.side,
+        entryPrice: order.price,
+        size: order.size,
+        leverage: order.leverage,
+        timestamp: Date.now(),
+        margin,
+        marginMode,
+        takeProfit: order.takeProfit,
+        stopLoss: order.stopLoss,
+      });
+
+      toast({
+        title: "Position Opened",
+        description: `${order.side.toUpperCase()} ${MARKET_DISPLAY_NAMES[order.symbol]} @ $${order.price.toLocaleString()} with ${order.leverage}x leverage`,
+      });
+    }
   };
 
   const handleClosePosition = (positionId: string, currentPrice: number) => {
@@ -96,6 +120,14 @@ const Index = () => {
     });
   };
 
+  const handleConnectClick = () => {
+    if (currentUser) {
+      setShowAccountHub(true);
+    } else {
+      setShowAuthModal(true);
+    }
+  };
+
   const isConnected = mode !== null;
 
   if (!isLoaded) {
@@ -114,13 +146,15 @@ const Index = () => {
       <Navbar
         mode={mode}
         balance={balance}
-        onConnectClick={() => setShowConnectModal(true)}
-        onDisconnect={handleDisconnect}
+        currentUser={currentUser}
+        onConnectClick={handleConnectClick}
+        onDisconnect={logout}
+        onAccountClick={() => setShowAccountHub(true)}
       />
 
-      <main className="pt-16 pb-6 px-3 md:px-4 max-w-[1600px] mx-auto">
+      <main className="pt-16 pb-6 px-3 md:px-4 max-w-[1800px] mx-auto">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="w-full max-w-md mx-auto glass-panel bg-muted/50 p-1">
+          <TabsList className="w-full max-w-lg mx-auto glass-panel bg-muted/50 p-1">
             <TabsTrigger 
               value="trade" 
               className="flex-1 data-[state=active]:bg-primary/20 data-[state=active]:text-primary gap-2"
@@ -136,11 +170,18 @@ const Index = () => {
               <span className="hidden sm:inline">Portfolio</span>
             </TabsTrigger>
             <TabsTrigger 
+              value="leaderboard" 
+              className="flex-1 data-[state=active]:bg-primary/20 data-[state=active]:text-primary gap-2"
+            >
+              <Trophy className="w-4 h-4" />
+              <span className="hidden sm:inline">Leaderboard</span>
+            </TabsTrigger>
+            <TabsTrigger 
               value="ai" 
               className="flex-1 data-[state=active]:bg-primary/20 data-[state=active]:text-primary gap-2"
             >
               <Brain className="w-4 h-4" />
-              <span className="hidden sm:inline">AI Intelligence</span>
+              <span className="hidden sm:inline">AI</span>
             </TabsTrigger>
           </TabsList>
 
@@ -149,11 +190,17 @@ const Index = () => {
               prices={prices}
               isLoadingPrices={isLoadingPrices}
               positions={positions}
+              limitOrders={limitOrders}
+              tradeHistory={tradeHistory}
               balance={balance}
               isConnected={isConnected}
+              marginMode={marginMode}
               onPlaceOrder={handlePlaceOrder}
               onClosePosition={handleClosePosition}
-              onConnectClick={() => setShowConnectModal(true)}
+              onCancelOrder={cancelLimitOrder}
+              onConnectClick={handleConnectClick}
+              onMarginModeChange={setMarginMode}
+              onExportCSV={exportTradesCSV}
             />
           </TabsContent>
 
@@ -165,15 +212,21 @@ const Index = () => {
               prices={prices}
               isConnected={isConnected}
               onClosePosition={handleClosePosition}
-              onConnectClick={() => setShowConnectModal(true)}
+              onConnectClick={handleConnectClick}
             />
+          </TabsContent>
+
+          <TabsContent value="leaderboard" className="animate-fade-in">
+            <div className="max-w-4xl mx-auto h-[600px]">
+              <Leaderboard users={getLeaderboard()} currentUserId={currentUser?.id} />
+            </div>
           </TabsContent>
 
           <TabsContent value="ai" className="animate-fade-in">
             <AIIntelligenceTab
               prices={prices}
               isConnected={isConnected}
-              onConnectClick={() => setShowConnectModal(true)}
+              onConnectClick={handleConnectClick}
             />
           </TabsContent>
         </Tabs>
@@ -181,11 +234,20 @@ const Index = () => {
 
       <Footer />
 
-      <ConnectWalletModal
-        open={showConnectModal}
-        onOpenChange={setShowConnectModal}
-        onPaperTrading={handlePaperTrading}
-        onJoinWaitlist={() => setShowWaitlistModal(true)}
+      <AuthModal
+        open={showAuthModal}
+        onOpenChange={setShowAuthModal}
+        onSignUp={signUp}
+        onLogin={login}
+      />
+
+      <AccountHub
+        open={showAccountHub}
+        onOpenChange={setShowAccountHub}
+        user={currentUser}
+        balance={balance}
+        onDeposit={deposit}
+        onWithdraw={withdraw}
       />
 
       <WaitlistModal

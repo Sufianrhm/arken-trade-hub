@@ -1,21 +1,23 @@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Settings, Wallet } from 'lucide-react';
-import type { TradingMode } from '@/types/trading';
+import { Settings, User } from 'lucide-react';
+import type { TradingMode, UserAccount } from '@/types/trading';
 
 interface NavbarProps {
   mode: TradingMode;
   balance: number;
+  currentUser: UserAccount | null;
   onConnectClick: () => void;
   onDisconnect: () => void;
+  onAccountClick: () => void;
 }
 
-export function Navbar({ mode, balance, onConnectClick, onDisconnect }: NavbarProps) {
+export function Navbar({ mode, balance, currentUser, onConnectClick, onDisconnect, onAccountClick }: NavbarProps) {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 h-14 bg-background/80 backdrop-blur-xl border-b border-border/40">
-      <div className="h-full max-w-7xl mx-auto px-4 flex items-center justify-between">
+      <div className="h-full max-w-[1800px] mx-auto px-4 flex items-center justify-between">
         {/* Left - Settings */}
-        <div className="w-24 flex items-center">
+        <div className="w-28 flex items-center">
           <button className="p-2 rounded-lg hover:bg-muted/50 transition-colors">
             <Settings className="w-4 h-4 text-muted-foreground" />
           </button>
@@ -28,8 +30,8 @@ export function Navbar({ mode, balance, onConnectClick, onDisconnect }: NavbarPr
             <svg viewBox="0 0 40 40" className="w-full h-full">
               <defs>
                 <linearGradient id="logoGradient" x1="0%" y1="100%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#00d4ff" />
-                  <stop offset="100%" stopColor="#00f5d4" />
+                  <stop offset="0%" stopColor="hsl(187, 100%, 50%)" />
+                  <stop offset="100%" stopColor="hsl(162, 100%, 72%)" />
                 </linearGradient>
                 <filter id="glow">
                   <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
@@ -51,7 +53,7 @@ export function Navbar({ mode, balance, onConnectClick, onDisconnect }: NavbarPr
               {/* Inner cutout */}
               <polygon 
                 points="20,16 28,30 12,30" 
-                fill="#050505"
+                fill="hsl(0, 0%, 2%)"
                 stroke="url(#logoGradient)" 
                 strokeWidth="1.5"
                 strokeLinejoin="round"
@@ -76,9 +78,9 @@ export function Navbar({ mode, balance, onConnectClick, onDisconnect }: NavbarPr
           )}
         </div>
 
-        {/* Right - Wallet */}
-        <div className="w-24 flex items-center justify-end gap-2">
-          {mode ? (
+        {/* Right - Wallet/Account */}
+        <div className="w-28 flex items-center justify-end gap-2">
+          {currentUser ? (
             <div className="flex items-center gap-2">
               <span className="text-xs font-medium text-muted-foreground hidden sm:block tabular-nums">
                 ${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -86,11 +88,11 @@ export function Navbar({ mode, balance, onConnectClick, onDisconnect }: NavbarPr
               <Button
                 variant="outline"
                 size="sm"
-                onClick={onDisconnect}
+                onClick={onAccountClick}
                 className="h-8 px-3 text-xs bg-transparent border-border/50 hover:border-primary/50 hover:bg-primary/5 transition-all"
               >
-                <Wallet className="w-3.5 h-3.5 mr-1.5" />
-                <span className="hidden sm:inline">Connected</span>
+                <User className="w-3.5 h-3.5 mr-1.5" />
+                <span className="hidden sm:inline">{currentUser.username}</span>
               </Button>
             </div>
           ) : (
@@ -99,8 +101,7 @@ export function Navbar({ mode, balance, onConnectClick, onDisconnect }: NavbarPr
               size="sm"
               className="h-8 px-4 text-xs bg-primary hover:bg-primary/90 text-primary-foreground font-medium transition-all hover:shadow-lg hover:shadow-primary/20"
             >
-              <Wallet className="w-3.5 h-3.5 mr-1.5" />
-              Connect
+              Sign Up
             </Button>
           )}
         </div>
