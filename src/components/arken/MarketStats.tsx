@@ -9,7 +9,7 @@ interface MarketStatsProps {
 export function MarketStats({ data, isLoading }: MarketStatsProps) {
   if (isLoading || !data) {
     return (
-      <div className="glass-panel p-3 animate-pulse">
+      <div className="panel p-3 animate-pulse">
         <div className="flex gap-6">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="space-y-1">
@@ -48,11 +48,11 @@ export function MarketStats({ data, isLoading }: MarketStatsProps) {
   const isPositive = data.changePercent24h >= 0;
 
   return (
-    <div className="glass-panel p-3">
-      <div className="flex items-center gap-4 md:gap-6 overflow-x-auto scrollbar-hide">
+    <div className="panel p-3">
+      <div className="flex items-center gap-6 md:gap-8 overflow-x-auto scrollbar-hide">
         {/* 24h Change */}
         <div className="flex-shrink-0">
-          <div className="text-[10px] text-muted-foreground mb-0.5">24h Change</div>
+          <div className="text-label mb-1">24H CHANGE</div>
           <div className={`flex items-center gap-1 text-sm font-semibold ${isPositive ? 'text-success' : 'text-destructive'}`}>
             {isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
             <span className="tabular-nums">{isPositive ? '+' : ''}{data.changePercent24h.toFixed(2)}%</span>
@@ -61,7 +61,7 @@ export function MarketStats({ data, isLoading }: MarketStatsProps) {
 
         {/* 24h High */}
         <div className="flex-shrink-0">
-          <div className="text-[10px] text-muted-foreground mb-0.5">24h High</div>
+          <div className="text-label mb-1">24H HIGH</div>
           <div className="text-sm text-foreground tabular-nums">
             ${formatPrice(data.high24h)}
           </div>
@@ -69,7 +69,7 @@ export function MarketStats({ data, isLoading }: MarketStatsProps) {
 
         {/* 24h Low */}
         <div className="flex-shrink-0">
-          <div className="text-[10px] text-muted-foreground mb-0.5">24h Low</div>
+          <div className="text-label mb-1">24H LOW</div>
           <div className="text-sm text-foreground tabular-nums">
             ${formatPrice(data.low24h)}
           </div>
@@ -77,7 +77,7 @@ export function MarketStats({ data, isLoading }: MarketStatsProps) {
 
         {/* 24h Volume */}
         <div className="flex-shrink-0">
-          <div className="text-[10px] text-muted-foreground mb-0.5">24h Volume</div>
+          <div className="text-label mb-1">24H VOLUME</div>
           <div className="text-sm text-foreground tabular-nums">
             ${formatVolume(data.volume24h)}
           </div>

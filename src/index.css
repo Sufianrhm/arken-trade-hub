@@ -4,79 +4,82 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Arken Trading Terminal Design System - Premium Dark Theme */
+/* ARKENX Trading Terminal - Swiss Minimal Luxury-Tech Design System */
 @layer base {
   :root {
-    --background: 0 0% 2%;
-    --foreground: 0 0% 98%;
+    /* Core palette - #050607 background */
+    --background: 220 14% 2%;
+    --foreground: 0 0% 100%;
 
-    --card: 0 0% 4%;
-    --card-foreground: 0 0% 98%;
+    /* Panels - #0B0D10 */
+    --card: 216 18% 5%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 4%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 216 18% 5%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 187 100% 50%;
-    --primary-foreground: 0 0% 2%;
+    /* Electric Blue Accent - #1E6BFF */
+    --primary: 220 100% 56%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 10%;
-    --secondary-foreground: 0 0% 98%;
+    /* Secondary - subtle panel variant */
+    --secondary: 218 14% 8%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 60%;
+    /* Muted - #1A1D22 borders and subdued elements */
+    --muted: 218 14% 12%;
+    --muted-foreground: 220 10% 67%;
 
-    --accent: 187 100% 50%;
-    --accent-foreground: 0 0% 2%;
+    /* Accent matches primary for CTAs */
+    --accent: 220 100% 56%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 70% 50%;
-    --destructive-foreground: 0 0% 98%;
+    /* Danger - #FF3B57 */
+    --destructive: 352 100% 62%;
+    --destructive-foreground: 0 0% 100%;
 
-    --success: 142 70% 45%;
-    --success-foreground: 0 0% 98%;
+    /* Success - #00D18F */
+    --success: 161 100% 41%;
+    --success-foreground: 0 0% 100%;
 
-    --border: 0 0% 15%;
-    --input: 0 0% 12%;
-    --ring: 187 100% 50%;
+    /* Borders - #1A1D22 */
+    --border: 218 14% 12%;
+    --input: 218 14% 10%;
+    --ring: 220 100% 56%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 3%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 187 100% 50%;
-    --sidebar-primary-foreground: 0 0% 2%;
-    --sidebar-accent: 0 0% 10%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 15%;
-    --sidebar-ring: 187 100% 50%;
-
-    /* Custom Arken tokens */
-    --glow-primary: 187 100% 50%;
-    --glow-success: 142 70% 45%;
-    --glow-destructive: 0 70% 50%;
-    --glass-bg: 0 0% 8%;
-    --glass-border: 0 0% 20%;
+    /* Sidebar */
+    --sidebar-background: 220 14% 3%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 220 100% 56%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 218 14% 10%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 218 14% 12%;
+    --sidebar-ring: 220 100% 56%;
   }
 
   .dark {
-    --background: 0 0% 2%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 4%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 4%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 187 100% 50%;
-    --primary-foreground: 0 0% 2%;
-    --secondary: 0 0% 10%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 60%;
-    --accent: 187 100% 50%;
-    --accent-foreground: 0 0% 2%;
-    --destructive: 0 70% 50%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 15%;
-    --input: 0 0% 12%;
-    --ring: 187 100% 50%;
+    --background: 220 14% 2%;
+    --foreground: 0 0% 100%;
+    --card: 216 18% 5%;
+    --card-foreground: 0 0% 100%;
+    --popover: 216 18% 5%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 220 100% 56%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 218 14% 8%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 218 14% 12%;
+    --muted-foreground: 220 10% 67%;
+    --accent: 220 100% 56%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 352 100% 62%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 218 14% 12%;
+    --input: 218 14% 10%;
+    --ring: 220 100% 56%;
   }
 }
 
@@ -91,6 +94,7 @@
     font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.01em;
   }
 
   /* Tabular numbers for prices */
@@ -99,66 +103,53 @@
     font-feature-settings: "tnum" 1;
   }
 
-  /* Custom scrollbar */
+  /* Custom scrollbar - minimal */
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 4px;
+    height: 4px;
   }
 
   ::-webkit-scrollbar-track {
-    background: hsl(var(--background));
+    background: transparent;
   }
 
   ::-webkit-scrollbar-thumb {
     background: hsl(var(--muted));
-    border-radius: 3px;
+    border-radius: 2px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--muted-foreground));
+    background: hsl(var(--muted-foreground) / 0.5);
   }
 }
 
 @layer utilities {
-  .glass-panel {
-    @apply bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl;
-    box-shadow: 
-      0 0 0 1px hsl(var(--glass-border) / 0.1),
-      0 4px 24px -4px hsl(0 0% 0% / 0.3),
-      inset 0 1px 0 0 hsl(0 0% 100% / 0.03);
+  /* Panel styles - clean, no glass effect */
+  .panel {
+    @apply bg-card border border-border rounded-lg;
   }
 
-  .glass-panel-glow {
-    @apply glass-panel;
-    box-shadow: 
-      0 0 0 1px hsl(var(--glow-primary) / 0.1),
-      0 0 20px -5px hsl(var(--glow-primary) / 0.15),
-      0 4px 24px -4px hsl(0 0% 0% / 0.3),
-      inset 0 1px 0 0 hsl(0 0% 100% / 0.03);
+  .panel-elevated {
+    @apply bg-card border border-border rounded-lg;
+    box-shadow: 0 1px 2px 0 hsl(0 0% 0% / 0.2);
   }
 
-  .glow-success {
-    box-shadow: 0 0 20px -5px hsl(var(--glow-success) / 0.4);
+  /* Text utilities */
+  .text-label {
+    @apply text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground;
   }
 
-  .glow-destructive {
-    box-shadow: 0 0 20px -5px hsl(var(--glow-destructive) / 0.4);
+  .text-value {
+    @apply text-sm font-medium text-foreground tabular-nums;
   }
 
-  .text-gradient {
-    @apply bg-gradient-to-r from-primary to-cyan-300 bg-clip-text text-transparent;
-  }
-
+  /* Animations - fast and subtle */
   .animate-fade-in {
-    animation: fadeIn 0.5s ease-out forwards;
+    animation: fadeIn 0.15s ease-out forwards;
   }
 
   .animate-slide-up {
-    animation: slideUp 0.5s ease-out forwards;
-  }
-
-  .animate-pulse-glow {
-    animation: pulseGlow 2s ease-in-out infinite;
+    animation: slideUp 0.2s ease-out forwards;
   }
 
   @keyframes fadeIn {
@@ -169,7 +160,7 @@
   @keyframes slideUp {
     from { 
       opacity: 0; 
-      transform: translateY(10px); 
+      transform: translateY(4px); 
     }
     to { 
       opacity: 1; 
@@ -177,12 +168,35 @@
     }
   }
 
-  @keyframes pulseGlow {
-    0%, 100% { 
-      box-shadow: 0 0 20px -5px hsl(var(--glow-primary) / 0.2); 
-    }
-    50% { 
-      box-shadow: 0 0 30px -5px hsl(var(--glow-primary) / 0.4); 
-    }
+  /* Hover states - fast transition */
+  .hover-lift {
+    @apply transition-all duration-100;
+  }
+
+  .hover-lift:hover {
+    @apply -translate-y-px;
+  }
+
+  /* Focus states */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-1 focus:ring-primary focus:ring-offset-0;
+  }
+
+  /* Legacy support - map old glass-panel to new panel */
+  .glass-panel {
+    @apply bg-card border border-border rounded-lg;
+  }
+
+  .glass-panel-glow {
+    @apply bg-card border border-primary/20 rounded-lg;
+  }
+
+  /* Status indicators */
+  .status-success {
+    @apply text-success;
+  }
+
+  .status-danger {
+    @apply text-destructive;
   }
 }

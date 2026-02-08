@@ -36,23 +36,23 @@ export const OrderBook = memo(function OrderBook({ data, currentPrice }: OrderBo
   };
 
   return (
-    <div className="glass-panel h-full flex flex-col">
+    <div className="panel h-full flex flex-col">
       {/* Header */}
-      <div className="p-3 border-b border-border/30">
+      <div className="px-4 py-3 border-b border-border">
         <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-foreground text-sm">Order Book</h3>
+          <span className="text-label">ORDER BOOK</span>
           <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
-            <span className="text-xs text-muted-foreground">Live</span>
+            <div className="w-1.5 h-1.5 rounded-full bg-success" />
+            <span className="text-[10px] text-muted-foreground">LIVE</span>
           </div>
         </div>
       </div>
 
       {/* Column Headers */}
-      <div className="grid grid-cols-3 gap-2 px-3 py-2 text-xs text-muted-foreground border-b border-border/20">
-        <span>Price</span>
-        <span className="text-right">Size</span>
-        <span className="text-right">Total</span>
+      <div className="grid grid-cols-3 gap-2 px-4 py-2 text-label border-b border-border/50">
+        <span>PRICE</span>
+        <span className="text-right">SIZE</span>
+        <span className="text-right">TOTAL</span>
       </div>
 
       {/* Asks (sells) - reversed so highest at top */}
@@ -67,10 +67,10 @@ export const OrderBook = memo(function OrderBook({ data, currentPrice }: OrderBo
             return (
               <div
                 key={`ask-${i}`}
-                className="grid grid-cols-3 gap-2 px-3 py-1 text-xs relative hover:bg-destructive/10 transition-colors"
+                className="grid grid-cols-3 gap-2 px-4 py-1 text-xs relative hover:bg-muted/30 transition-colors duration-75"
               >
                 <div
-                  className="absolute inset-0 bg-destructive/20 pointer-events-none"
+                  className="absolute inset-0 bg-destructive/10 pointer-events-none"
                   style={{ width: `${Math.min(depthPercent * 3, 100)}%`, right: 0, left: 'auto' }}
                 />
                 <span className="text-destructive tabular-nums relative z-10">{formatPrice(price)}</span>
@@ -82,14 +82,14 @@ export const OrderBook = memo(function OrderBook({ data, currentPrice }: OrderBo
         </div>
 
         {/* Spread / Current Price */}
-        <div className="px-3 py-2 bg-muted/30 border-y border-border/30">
+        <div className="px-4 py-3 bg-muted/20 border-y border-border">
           <div className="flex items-center justify-between">
-            <span className="text-lg font-bold text-foreground tabular-nums">
+            <span className="text-lg font-semibold text-foreground tabular-nums">
               ${formatPrice(currentPrice)}
             </span>
             {data.asks[0] && data.bids[0] && (
-              <span className="text-xs text-muted-foreground">
-                Spread: {((data.asks[0][0] - data.bids[0][0]) / data.asks[0][0] * 100).toFixed(3)}%
+              <span className="text-[10px] text-muted-foreground">
+                SPREAD {((data.asks[0][0] - data.bids[0][0]) / data.asks[0][0] * 100).toFixed(3)}%
               </span>
             )}
           </div>
@@ -106,10 +106,10 @@ export const OrderBook = memo(function OrderBook({ data, currentPrice }: OrderBo
             return (
               <div
                 key={`bid-${i}`}
-                className="grid grid-cols-3 gap-2 px-3 py-1 text-xs relative hover:bg-success/10 transition-colors"
+                className="grid grid-cols-3 gap-2 px-4 py-1 text-xs relative hover:bg-muted/30 transition-colors duration-75"
               >
                 <div
-                  className="absolute inset-0 bg-success/20 pointer-events-none"
+                  className="absolute inset-0 bg-success/10 pointer-events-none"
                   style={{ width: `${Math.min(depthPercent * 3, 100)}%`, right: 0, left: 'auto' }}
                 />
                 <span className="text-success tabular-nums relative z-10">{formatPrice(price)}</span>

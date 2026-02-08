@@ -4,8 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { Copy, Check, DollarSign, TrendingUp, Award, Share2 } from 'lucide-react';
+import { Copy, Check, DollarSign, Award, Share2 } from 'lucide-react';
 import type { UserAccount } from '@/types/trading';
 
 interface AccountHubProps {
@@ -60,7 +59,7 @@ export function AccountHub({
 
   const copyReferralLink = () => {
     if (user?.referralCode) {
-      navigator.clipboard.writeText(`https://arken.trade/ref/${user.referralCode}`);
+      navigator.clipboard.writeText(`https://arkenx.trade/ref/${user.referralCode}`);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
@@ -68,12 +67,12 @@ export function AccountHub({
 
   const getBadgeColor = (badge: UserAccount['badge']) => {
     switch (badge) {
-      case 'diamond': return 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30';
-      case 'platinum': return 'bg-slate-300/20 text-slate-300 border-slate-300/30';
-      case 'gold': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
-      case 'silver': return 'bg-gray-400/20 text-gray-300 border-gray-400/30';
-      case 'bronze': return 'bg-orange-600/20 text-orange-400 border-orange-600/30';
-      default: return 'bg-muted text-muted-foreground';
+      case 'diamond': return 'bg-primary/10 text-primary border-primary/30';
+      case 'platinum': return 'bg-muted text-foreground border-border';
+      case 'gold': return 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30';
+      case 'silver': return 'bg-muted text-muted-foreground border-border';
+      case 'bronze': return 'bg-orange-500/10 text-orange-400 border-orange-500/30';
+      default: return 'bg-muted text-muted-foreground border-border';
     }
   };
 
@@ -81,39 +80,39 @@ export function AccountHub({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="glass-panel border-border/50 sm:max-w-lg p-0 overflow-hidden">
-        <DialogHeader className="p-6 pb-4 border-b border-border/30">
-          <DialogTitle className="text-xl font-semibold flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-primary/10">
-              <DollarSign className="w-5 h-5 text-primary" />
+      <DialogContent className="bg-card border-border sm:max-w-lg p-0 overflow-hidden">
+        <DialogHeader className="p-6 pb-4 border-b border-border">
+          <DialogTitle className="text-lg font-semibold flex items-center gap-3">
+            <div className="p-2 rounded bg-primary/10">
+              <DollarSign className="w-4 h-4 text-primary" />
             </div>
-            Account Hub
+            ACCOUNT HUB
           </DialogTitle>
         </DialogHeader>
 
         <div className="p-6 space-y-6">
           {/* Account Info */}
-          <div className="glass-panel p-4 space-y-3">
+          <div className="panel p-4 space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Username</p>
+                <p className="text-label">USERNAME</p>
                 <p className="text-lg font-semibold text-foreground">{user.username}</p>
               </div>
               {user.badge && (
-                <Badge variant="outline" className={getBadgeColor(user.badge)}>
-                  <Award className="w-3 h-3 mr-1" />
-                  {user.badge.charAt(0).toUpperCase() + user.badge.slice(1)}
-                </Badge>
+                <span className={`text-[10px] font-medium uppercase tracking-wider px-2 py-1 rounded border ${getBadgeColor(user.badge)}`}>
+                  <Award className="w-3 h-3 inline mr-1" />
+                  {user.badge}
+                </span>
               )}
             </div>
             
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Paper Account ID</p>
+                <p className="text-label">ACCOUNT ID</p>
                 <p className="text-sm font-mono text-foreground">{user.paperAccountId}</p>
               </div>
               <div>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Balance</p>
+                <p className="text-label">BALANCE</p>
                 <p className="text-sm font-semibold text-primary tabular-nums">
                   ${balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                 </p>
@@ -123,42 +122,42 @@ export function AccountHub({
 
           {/* Stats */}
           <div className="grid grid-cols-3 gap-3">
-            <div className="glass-panel p-3 text-center">
-              <p className="text-[10px] text-muted-foreground uppercase">Total PnL</p>
+            <div className="panel p-3 text-center">
+              <p className="text-label">TOTAL PNL</p>
               <p className={`text-lg font-semibold tabular-nums ${user.totalPnl >= 0 ? 'text-success' : 'text-destructive'}`}>
                 {user.totalPnl >= 0 ? '+' : ''}${user.totalPnl.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </p>
             </div>
-            <div className="glass-panel p-3 text-center">
-              <p className="text-[10px] text-muted-foreground uppercase">Trades</p>
+            <div className="panel p-3 text-center">
+              <p className="text-label">TRADES</p>
               <p className="text-lg font-semibold text-foreground">{user.tradesCount}</p>
             </div>
-            <div className="glass-panel p-3 text-center">
-              <p className="text-[10px] text-muted-foreground uppercase">Win Rate</p>
+            <div className="panel p-3 text-center">
+              <p className="text-label">WIN RATE</p>
               <p className="text-lg font-semibold text-foreground">{user.winRate.toFixed(1)}%</p>
             </div>
           </div>
 
           {/* Deposit/Withdraw Tabs */}
           <Tabs defaultValue="deposit" className="w-full">
-            <TabsList className="w-full bg-muted/30">
-              <TabsTrigger value="deposit" className="flex-1">Deposit</TabsTrigger>
-              <TabsTrigger value="withdraw" className="flex-1">Withdraw</TabsTrigger>
+            <TabsList className="w-full bg-muted/30 p-0.5">
+              <TabsTrigger value="deposit" className="flex-1 text-xs">DEPOSIT</TabsTrigger>
+              <TabsTrigger value="withdraw" className="flex-1 text-xs">WITHDRAW</TabsTrigger>
             </TabsList>
 
             <TabsContent value="deposit" className="mt-4 space-y-3">
               <div className="space-y-2">
-                <Label>Amount (USDC)</Label>
+                <Label className="text-label">AMOUNT (USDC)</Label>
                 <div className="flex gap-2">
                   <Input
                     type="number"
                     value={depositAmount}
                     onChange={(e) => { setDepositAmount(e.target.value); setError(''); }}
                     placeholder="0.00"
-                    className="glass-panel border-border/50"
+                    className="bg-muted/30 border-border"
                   />
                   <Button onClick={handleDeposit} className="bg-success hover:bg-success/90">
-                    Deposit
+                    DEPOSIT
                   </Button>
                 </div>
               </div>
@@ -179,17 +178,17 @@ export function AccountHub({
 
             <TabsContent value="withdraw" className="mt-4 space-y-3">
               <div className="space-y-2">
-                <Label>Amount (USDC)</Label>
+                <Label className="text-label">AMOUNT (USDC)</Label>
                 <div className="flex gap-2">
                   <Input
                     type="number"
                     value={withdrawAmount}
                     onChange={(e) => { setWithdrawAmount(e.target.value); setError(''); }}
                     placeholder="0.00"
-                    className="glass-panel border-border/50"
+                    className="bg-muted/30 border-border"
                   />
                   <Button onClick={handleWithdraw} variant="outline">
-                    Withdraw
+                    WITHDRAW
                   </Button>
                 </div>
               </div>
@@ -208,16 +207,16 @@ export function AccountHub({
           {success && <p className="text-success text-sm">{success}</p>}
 
           {/* Referral Link */}
-          <div className="glass-panel p-4 space-y-2">
+          <div className="panel p-4 space-y-2">
             <div className="flex items-center gap-2">
               <Share2 className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium">Your Referral Link</span>
+              <span className="text-label">REFERRAL LINK</span>
             </div>
             <div className="flex gap-2">
               <Input
                 readOnly
-                value={`https://arken.trade/ref/${user.referralCode}`}
-                className="glass-panel border-border/50 text-xs"
+                value={`https://arkenx.trade/ref/${user.referralCode}`}
+                className="bg-muted/30 border-border text-xs"
               />
               <Button variant="outline" size="icon" onClick={copyReferralLink}>
                 {copied ? <Check className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4" />}

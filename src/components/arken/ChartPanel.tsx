@@ -1,7 +1,7 @@
 import { useEffect, useRef, memo, useState, useCallback } from 'react';
 import { createChart, ColorType, CrosshairMode, LineStyle, CandlestickSeries, HistogramSeries, LineSeries, type IChartApi, type ISeriesApi, type CandlestickData, type HistogramData, type Time } from 'lightweight-charts';
-import { Minus, TrendingUp, Hash, Trash2 } from 'lucide-react';
-import type { PriceData, MarketSymbol } from '@/types/trading';
+import { Minus, TrendingUp, Trash2 } from 'lucide-react';
+import type { PriceData } from '@/types/trading';
 import type { KlineData } from '@/hooks/useBinanceWebSocket';
 
 interface ChartPanelProps {
@@ -16,11 +16,11 @@ interface ChartPanelProps {
 export type Timeframe = '1m' | '5m' | '15m' | '1h' | '4h' | '1d';
 
 const TIMEFRAMES: { label: string; value: Timeframe }[] = [
-  { label: '1m', value: '1m' },
-  { label: '5m', value: '5m' },
-  { label: '15m', value: '15m' },
-  { label: '1h', value: '1h' },
-  { label: '4h', value: '4h' },
+  { label: '1M', value: '1m' },
+  { label: '5M', value: '5m' },
+  { label: '15M', value: '15m' },
+  { label: '1H', value: '1h' },
+  { label: '4H', value: '4h' },
   { label: '1D', value: '1d' },
 ];
 
@@ -62,34 +62,34 @@ export const ChartPanel = memo(function ChartPanel({
     const chart = createChart(chartContainerRef.current, {
       layout: {
         background: { type: ColorType.Solid, color: 'transparent' },
-        textColor: 'hsl(0 0% 60%)',
+        textColor: '#A1A6B3',
         fontFamily: "'Inter', system-ui, sans-serif",
       },
       grid: {
-        vertLines: { color: 'rgba(255, 255, 255, 0.03)', style: LineStyle.Solid },
-        horzLines: { color: 'rgba(255, 255, 255, 0.03)', style: LineStyle.Solid },
+        vertLines: { color: 'rgba(26, 29, 34, 0.5)', style: LineStyle.Solid },
+        horzLines: { color: 'rgba(26, 29, 34, 0.5)', style: LineStyle.Solid },
       },
       crosshair: {
         mode: CrosshairMode.Normal,
         vertLine: {
-          color: 'rgba(0, 212, 255, 0.4)',
+          color: 'rgba(30, 107, 255, 0.4)',
           width: 1,
           style: LineStyle.Dashed,
-          labelBackgroundColor: '#00d4ff',
+          labelBackgroundColor: '#1E6BFF',
         },
         horzLine: {
-          color: 'rgba(0, 212, 255, 0.4)',
+          color: 'rgba(30, 107, 255, 0.4)',
           width: 1,
           style: LineStyle.Dashed,
-          labelBackgroundColor: '#00d4ff',
+          labelBackgroundColor: '#1E6BFF',
         },
       },
       rightPriceScale: {
-        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderColor: '#1A1D22',
         scaleMargins: { top: 0.1, bottom: 0.2 },
       },
       timeScale: {
-        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderColor: '#1A1D22',
         timeVisible: true,
         secondsVisible: false,
       },
@@ -110,12 +110,12 @@ export const ChartPanel = memo(function ChartPanel({
 
     // Candlestick series
     const candlestickSeries = chart.addSeries(CandlestickSeries, {
-      upColor: '#22c55e',
-      downColor: '#ef4444',
-      borderUpColor: '#22c55e',
-      borderDownColor: '#ef4444',
-      wickUpColor: '#22c55e',
-      wickDownColor: '#ef4444',
+      upColor: '#00D18F',
+      downColor: '#FF3B57',
+      borderUpColor: '#00D18F',
+      borderDownColor: '#FF3B57',
+      wickUpColor: '#00D18F',
+      wickDownColor: '#FF3B57',
     });
 
     chartRef.current = chart;
@@ -132,17 +132,6 @@ export const ChartPanel = memo(function ChartPanel({
       }
     };
 
-    // Handle click for drawing tools
-    const handleChartClick = (param: any) => {
-      if (activeTool === 'horizontal' && param.point && chartRef.current) {
-        const price = candleSeriesRef.current?.coordinateToPrice(param.point.y);
-        if (price && chartRef.current) {
-          addHorizontalLine(price);
-        }
-      }
-    };
-
-    chart.subscribeClick(handleChartClick);
     window.addEventListener('resize', handleResize);
     handleResize();
 
@@ -179,7 +168,7 @@ export const ChartPanel = memo(function ChartPanel({
     if (!chartRef.current) return;
     
     const lineSeries = chartRef.current.addSeries(LineSeries, {
-      color: '#00d4ff',
+      color: '#1E6BFF',
       lineWidth: 1,
       lineStyle: LineStyle.Dashed,
       priceLineVisible: true,
@@ -187,7 +176,6 @@ export const ChartPanel = memo(function ChartPanel({
       crosshairMarkerVisible: false,
     });
 
-    // Create horizontal line data spanning the visible range
     const now = Math.floor(Date.now() / 1000);
     const startTime = (now - 86400 * 30) as Time;
     const endTime = (now + 86400 * 30) as Time;
@@ -232,34 +220,33 @@ export const ChartPanel = memo(function ChartPanel({
     const volumeData: HistogramData<Time>[] = klines.map(k => ({
       time: k.time as Time,
       value: k.volume,
-      color: k.close >= k.open ? 'rgba(34, 197, 94, 0.5)' : 'rgba(239, 68, 68, 0.5)',
+      color: k.close >= k.open ? 'rgba(0, 209, 143, 0.3)' : 'rgba(255, 59, 87, 0.3)',
     }));
 
     candleSeriesRef.current.setData(candleData);
     volumeSeriesRef.current.setData(volumeData);
     
-    // Only fit content on initial load
     if (klines.length === 100) {
       chartRef.current?.timeScale().fitContent();
     }
   }, [klines]);
 
   return (
-    <div className="glass-panel p-3 md:p-4 h-[300px] md:h-[420px] flex flex-col">
+    <div className="panel p-4 h-[300px] md:h-[420px] flex flex-col">
       {/* Chart Header */}
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5">
-            <div className={`w-2 h-2 rounded-full ${isWebSocketConnected ? 'bg-success' : 'bg-muted-foreground'} animate-pulse`} />
-            <h3 className="font-semibold text-foreground text-sm md:text-base">{symbol}</h3>
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <div className={`w-1.5 h-1.5 rounded-full ${isWebSocketConnected ? 'bg-success' : 'bg-muted-foreground'}`} />
+            <span className="text-sm font-medium text-foreground">{symbol}</span>
           </div>
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+          <span className="text-label px-1.5 py-0.5 bg-muted rounded">
             PERP
           </span>
         </div>
         {data && (
           <div className="text-right">
-            <p className="text-base md:text-lg font-bold text-foreground tabular-nums">
+            <p className="text-lg font-semibold text-foreground tabular-nums">
               ${formatPrice(data.price)}
             </p>
             <p className={`text-xs tabular-nums ${data.changePercent24h >= 0 ? 'text-success' : 'text-destructive'}`}>
@@ -270,17 +257,17 @@ export const ChartPanel = memo(function ChartPanel({
       </div>
 
       {/* Toolbar */}
-      <div className="flex items-center justify-between gap-2 mb-2">
+      <div className="flex items-center justify-between gap-2 mb-3">
         {/* Timeframe Selector */}
-        <div className="flex items-center gap-0.5 bg-muted/30 rounded-lg p-0.5">
+        <div className="flex items-center gap-1">
           {TIMEFRAMES.map(tf => (
             <button
               key={tf.value}
               onClick={() => onTimeframeChange?.(tf.value)}
-              className={`px-2 py-1 text-[10px] md:text-xs font-medium rounded-md transition-all ${
+              className={`px-2.5 py-1 text-[11px] font-medium rounded transition-colors duration-75 ${
                 selectedTimeframe === tf.value
-                  ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
             >
               {tf.label}
@@ -292,10 +279,10 @@ export const ChartPanel = memo(function ChartPanel({
         <div className="flex items-center gap-1">
           <button
             onClick={() => setActiveTool(activeTool === 'horizontal' ? 'none' : 'horizontal')}
-            className={`p-1.5 rounded-md transition-all ${
+            className={`p-1.5 rounded transition-colors duration-75 ${
               activeTool === 'horizontal'
                 ? 'bg-primary text-primary-foreground'
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted'
             }`}
             title="Horizontal Line"
           >
@@ -303,25 +290,19 @@ export const ChartPanel = memo(function ChartPanel({
           </button>
           <button
             onClick={() => setActiveTool(activeTool === 'trendline' ? 'none' : 'trendline')}
-            className={`p-1.5 rounded-md transition-all ${
+            className={`p-1.5 rounded transition-colors duration-75 ${
               activeTool === 'trendline'
                 ? 'bg-primary text-primary-foreground'
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted'
             }`}
             title="Trend Line"
           >
             <TrendingUp className="w-3.5 h-3.5" />
           </button>
-          <button
-            className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all"
-            title="Grid"
-          >
-            <Hash className="w-3.5 h-3.5" />
-          </button>
           {horizontalLines.length > 0 && (
             <button
               onClick={clearAllLines}
-              className="p-1.5 rounded-md text-destructive hover:bg-destructive/10 transition-all"
+              className="p-1.5 rounded text-destructive hover:bg-destructive/10 transition-colors duration-75"
               title="Clear All"
             >
               <Trash2 className="w-3.5 h-3.5" />
@@ -330,10 +311,10 @@ export const ChartPanel = memo(function ChartPanel({
         </div>
       </div>
 
-      {/* TradingView Chart */}
+      {/* Chart */}
       <div 
         ref={chartContainerRef} 
-        className={`flex-1 rounded-lg overflow-hidden bg-background/30 ${activeTool !== 'none' ? 'cursor-crosshair' : ''}`}
+        className={`flex-1 rounded overflow-hidden bg-background ${activeTool !== 'none' ? 'cursor-crosshair' : ''}`}
       />
     </div>
   );
