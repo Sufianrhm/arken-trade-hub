@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
 import type { MarketSymbol, FundingRate as FundingRateType } from '@/types/trading';
-import { DEFAULT_PRICES } from '@/types/trading';
 
 interface FundingRateProps {
   symbol: MarketSymbol;
@@ -12,7 +11,7 @@ export function FundingRate({ symbol, currentPrice }: FundingRateProps) {
   const [countdown, setCountdown] = useState<string>('--:--:--');
 
   const generateMockFunding = useCallback((): FundingRateType => {
-    const rate = (Math.random() - 0.5) * 0.0004; // -0.02% to +0.02%
+    const rate = (Math.random() - 0.5) * 0.0004;
     const now = Date.now();
     const hoursToNext = 8 - ((now / 3600000) % 8);
     const nextFundingTime = now + hoursToNext * 3600000;
@@ -27,7 +26,6 @@ export function FundingRate({ symbol, currentPrice }: FundingRateProps) {
   }, [symbol, currentPrice]);
 
   useEffect(() => {
-    // Fetch funding rate
     const fetchFunding = async () => {
       try {
         const response = await fetch(
@@ -51,7 +49,7 @@ export function FundingRate({ symbol, currentPrice }: FundingRateProps) {
     };
 
     fetchFunding();
-    const interval = setInterval(fetchFunding, 60000); // Update every minute
+    const interval = setInterval(fetchFunding, 60000);
 
     return () => clearInterval(interval);
   }, [symbol, generateMockFunding]);
@@ -94,11 +92,11 @@ export function FundingRate({ symbol, currentPrice }: FundingRateProps) {
   const isPositive = fundingRate >= 0;
 
   return (
-    <div className="glass-panel p-3">
-      <div className="grid grid-cols-2 gap-3">
+    <div className="panel p-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {/* Funding Rate */}
         <div>
-          <div className="text-[10px] text-muted-foreground mb-0.5">Funding Rate</div>
+          <div className="text-label mb-1">FUNDING RATE</div>
           <div className={`text-sm font-semibold tabular-nums ${isPositive ? 'text-success' : 'text-destructive'}`}>
             {isPositive ? '+' : ''}{(fundingRate * 100).toFixed(4)}%
           </div>
@@ -106,7 +104,7 @@ export function FundingRate({ symbol, currentPrice }: FundingRateProps) {
 
         {/* Countdown */}
         <div>
-          <div className="text-[10px] text-muted-foreground mb-0.5">Next Funding</div>
+          <div className="text-label mb-1">NEXT FUNDING</div>
           <div className="text-sm font-mono text-foreground tabular-nums">
             {countdown}
           </div>
@@ -114,7 +112,7 @@ export function FundingRate({ symbol, currentPrice }: FundingRateProps) {
 
         {/* Mark Price */}
         <div>
-          <div className="text-[10px] text-muted-foreground mb-0.5">Mark Price</div>
+          <div className="text-label mb-1">MARK PRICE</div>
           <div className="text-sm text-foreground tabular-nums">
             ${formatPrice(fundingData?.markPrice ?? currentPrice)}
           </div>
@@ -122,7 +120,7 @@ export function FundingRate({ symbol, currentPrice }: FundingRateProps) {
 
         {/* Index Price */}
         <div>
-          <div className="text-[10px] text-muted-foreground mb-0.5">Index Price</div>
+          <div className="text-label mb-1">INDEX PRICE</div>
           <div className="text-sm text-foreground tabular-nums">
             ${formatPrice(fundingData?.indexPrice ?? currentPrice)}
           </div>

@@ -15,6 +15,7 @@ import { toast } from '@/hooks/use-toast';
 import { MARKET_SYMBOLS, MARKET_DISPLAY_NAMES } from '@/types/trading';
 import type { MarketSymbol, OrderSide, OrderType } from '@/types/trading';
 import { LineChart, Wallet, Brain, Trophy } from 'lucide-react';
+import arkenxLogo from '@/assets/arkenx-logo.jpg';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('trade');
@@ -115,7 +116,7 @@ const Index = () => {
   const handleWaitlistSubmit = (data: { name: string; email: string; telegram: string }) => {
     addToWaitlist(data);
     toast({
-      title: "You're on the list! 🎉",
+      title: "You're on the list!",
       description: "We'll notify you when live trading launches.",
     });
   };
@@ -134,8 +135,8 @@ const Index = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading Arken...</p>
+          <img src={arkenxLogo} alt="ARKENX" className="h-12 w-auto mx-auto mb-6 opacity-50" />
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
         </div>
       </div>
     );
@@ -154,31 +155,31 @@ const Index = () => {
 
       <main className="pt-16 pb-6 px-3 md:px-4 max-w-[1800px] mx-auto">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="w-full max-w-lg mx-auto glass-panel bg-muted/50 p-1">
+          <TabsList className="w-full max-w-lg mx-auto bg-card border border-border p-1">
             <TabsTrigger 
               value="trade" 
-              className="flex-1 data-[state=active]:bg-primary/20 data-[state=active]:text-primary gap-2"
+              className="flex-1 text-xs data-[state=active]:bg-muted data-[state=active]:text-foreground gap-2"
             >
               <LineChart className="w-4 h-4" />
-              <span className="hidden sm:inline">Trade</span>
+              <span className="hidden sm:inline">TRADE</span>
             </TabsTrigger>
             <TabsTrigger 
               value="portfolio" 
-              className="flex-1 data-[state=active]:bg-primary/20 data-[state=active]:text-primary gap-2"
+              className="flex-1 text-xs data-[state=active]:bg-muted data-[state=active]:text-foreground gap-2"
             >
               <Wallet className="w-4 h-4" />
-              <span className="hidden sm:inline">Portfolio</span>
+              <span className="hidden sm:inline">PORTFOLIO</span>
             </TabsTrigger>
             <TabsTrigger 
               value="leaderboard" 
-              className="flex-1 data-[state=active]:bg-primary/20 data-[state=active]:text-primary gap-2"
+              className="flex-1 text-xs data-[state=active]:bg-muted data-[state=active]:text-foreground gap-2"
             >
               <Trophy className="w-4 h-4" />
-              <span className="hidden sm:inline">Leaderboard</span>
+              <span className="hidden sm:inline">LEADERBOARD</span>
             </TabsTrigger>
             <TabsTrigger 
               value="ai" 
-              className="flex-1 data-[state=active]:bg-primary/20 data-[state=active]:text-primary gap-2"
+              className="flex-1 text-xs data-[state=active]:bg-muted data-[state=active]:text-foreground gap-2"
             >
               <Brain className="w-4 h-4" />
               <span className="hidden sm:inline">AI</span>

@@ -65,7 +65,7 @@ export function TradeTab({
   return (
     <div className="space-y-3">
       {/* Market Header */}
-      <div className="glass-panel p-3 flex flex-col md:flex-row md:items-center gap-3">
+      <div className="panel p-3 flex flex-col md:flex-row md:items-center gap-3">
         <MarketSelector value={selectedMarket} onChange={setSelectedMarket} prices={prices} />
         <PriceDisplay data={currentPriceData} isLoading={isLoadingPrices} />
       </div>

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { User, Lock, Sparkles, AlertCircle, CheckCircle } from 'lucide-react';
+import { User, Lock, AlertCircle, CheckCircle } from 'lucide-react';
 import type { UserAccount } from '@/types/trading';
 
 interface AuthModalProps {
@@ -51,7 +51,7 @@ export function AuthModal({ open, onOpenChange, onSignUp, onLogin }: AuthModalPr
 
       const user = onSignUp(username, password, referralCode || undefined);
       if (user) {
-        setSuccess(`Welcome to Arken! Your Paper Account ID: ${user.paperAccountId}`);
+        setSuccess(`Welcome to ARKENX! Account ID: ${user.paperAccountId}`);
         setTimeout(() => {
           onOpenChange(false);
           resetForm();
@@ -84,11 +84,10 @@ export function AuthModal({ open, onOpenChange, onSignUp, onLogin }: AuthModalPr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="glass-panel border-border/50 sm:max-w-md p-0 overflow-hidden">
+      <DialogContent className="bg-card border-border sm:max-w-md p-0 overflow-hidden">
         <DialogHeader className="p-6 pb-2">
-          <DialogTitle className="text-xl font-semibold text-center flex items-center justify-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" />
-            Paper Trading Account
+          <DialogTitle className="text-lg font-semibold text-center">
+            PAPER TRADING ACCOUNT
           </DialogTitle>
           <p className="text-sm text-muted-foreground text-center mt-1">
             Trade with $10,000 virtual USDC
@@ -96,95 +95,89 @@ export function AuthModal({ open, onOpenChange, onSignUp, onLogin }: AuthModalPr
         </DialogHeader>
 
         <Tabs value={tab} onValueChange={(v) => { setTab(v as 'login' | 'signup'); setError(''); setSuccess(''); }}>
-          <TabsList className="w-full bg-muted/30 mx-6 mb-4" style={{ width: 'calc(100% - 48px)' }}>
-            <TabsTrigger value="signup" className="flex-1">Sign Up</TabsTrigger>
-            <TabsTrigger value="login" className="flex-1">Login</TabsTrigger>
+          <TabsList className="w-full bg-muted/30 mx-6 mb-4 p-0.5" style={{ width: 'calc(100% - 48px)' }}>
+            <TabsTrigger value="signup" className="flex-1 text-xs">SIGN UP</TabsTrigger>
+            <TabsTrigger value="login" className="flex-1 text-xs">LOGIN</TabsTrigger>
           </TabsList>
 
           <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-4">
             <TabsContent value="signup" className="mt-0 space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
+                <Label className="text-label">USERNAME</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
-                    id="username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="Choose a username"
-                    className="pl-10 glass-panel border-border/50"
+                    className="pl-10 bg-muted/30 border-border"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label className="text-label">PASSWORD</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
-                    id="password"
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Create a password"
-                    className="pl-10 glass-panel border-border/50"
+                    className="pl-10 bg-muted/30 border-border"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Label className="text-label">CONFIRM PASSWORD</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
-                    id="confirmPassword"
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Confirm your password"
-                    className="pl-10 glass-panel border-border/50"
+                    className="pl-10 bg-muted/30 border-border"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="referral" className="text-muted-foreground">Referral Code (Optional)</Label>
+                <Label className="text-label text-muted-foreground">REFERRAL CODE (OPTIONAL)</Label>
                 <Input
-                  id="referral"
                   value={referralCode}
                   onChange={(e) => setReferralCode(e.target.value)}
                   placeholder="Enter referral code"
-                  className="glass-panel border-border/50"
+                  className="bg-muted/30 border-border"
                 />
               </div>
             </TabsContent>
 
             <TabsContent value="login" className="mt-0 space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="login-username">Username</Label>
+                <Label className="text-label">USERNAME</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
-                    id="login-username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="Enter your username"
-                    className="pl-10 glass-panel border-border/50"
+                    className="pl-10 bg-muted/30 border-border"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="login-password">Password</Label>
+                <Label className="text-label">PASSWORD</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
-                    id="login-password"
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
-                    className="pl-10 glass-panel border-border/50"
+                    className="pl-10 bg-muted/30 border-border"
                   />
                 </div>
               </div>
@@ -204,8 +197,8 @@ export function AuthModal({ open, onOpenChange, onSignUp, onLogin }: AuthModalPr
               </div>
             )}
 
-            <Button type="submit" className="w-full bg-primary hover:bg-primary/90">
-              {tab === 'signup' ? 'Create Account' : 'Login'}
+            <Button type="submit" className="w-full bg-primary hover:bg-primary/90 font-medium">
+              {tab === 'signup' ? 'CREATE ACCOUNT' : 'LOGIN'}
             </Button>
           </form>
         </Tabs>

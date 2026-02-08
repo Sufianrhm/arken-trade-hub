@@ -43,29 +43,29 @@ export function TradingTabs({
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `arken-trades-${Date.now()}.csv`;
+    a.download = `arkenx-trades-${Date.now()}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="glass-panel h-full flex flex-col">
+    <div className="panel h-full flex flex-col">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-        <div className="flex items-center justify-between px-3 pt-2 border-b border-border/50">
-          <TabsList className="bg-transparent h-8">
-            <TabsTrigger value="positions" className="text-xs h-7 px-3 data-[state=active]:bg-primary/20">
-              Positions ({positions.length})
+        <div className="flex items-center justify-between px-3 pt-2 border-b border-border">
+          <TabsList className="bg-transparent h-8 p-0">
+            <TabsTrigger value="positions" className="text-[10px] h-7 px-3 data-[state=active]:bg-muted rounded-none border-b-2 border-transparent data-[state=active]:border-primary">
+              POSITIONS ({positions.length})
             </TabsTrigger>
-            <TabsTrigger value="orders" className="text-xs h-7 px-3 data-[state=active]:bg-primary/20">
-              Orders ({limitOrders.length})
+            <TabsTrigger value="orders" className="text-[10px] h-7 px-3 data-[state=active]:bg-muted rounded-none border-b-2 border-transparent data-[state=active]:border-primary">
+              ORDERS ({limitOrders.length})
             </TabsTrigger>
-            <TabsTrigger value="history" className="text-xs h-7 px-3 data-[state=active]:bg-primary/20">
-              History
+            <TabsTrigger value="history" className="text-[10px] h-7 px-3 data-[state=active]:bg-muted rounded-none border-b-2 border-transparent data-[state=active]:border-primary">
+              HISTORY
             </TabsTrigger>
           </TabsList>
           
           {activeTab === 'history' && tradeHistory.length > 0 && (
-            <Button variant="ghost" size="sm" onClick={handleExport} className="h-7 text-xs gap-1">
+            <Button variant="ghost" size="sm" onClick={handleExport} className="h-7 text-[10px] gap-1 text-muted-foreground hover:text-foreground">
               <Download className="w-3 h-3" />
               CSV
             </Button>
@@ -88,37 +88,37 @@ export function TradingTabs({
                   return (
                     <div 
                       key={position.id} 
-                      className="flex items-center justify-between p-2 rounded bg-muted/30 text-xs"
+                      className="flex items-center justify-between p-2 rounded bg-muted/20 text-xs"
                     >
                       <div className="flex items-center gap-3">
                         <div className="flex items-center gap-1">
                           {position.side === 'long' ? (
-                            <TrendingUp className="w-3 h-3 text-green-400" />
+                            <TrendingUp className="w-3 h-3 text-success" />
                           ) : (
-                            <TrendingDown className="w-3 h-3 text-red-400" />
+                            <TrendingDown className="w-3 h-3 text-destructive" />
                           )}
-                          <span className={position.side === 'long' ? 'text-green-400' : 'text-red-400'}>
+                          <span className={position.side === 'long' ? 'text-success' : 'text-destructive'}>
                             {position.side.toUpperCase()}
                           </span>
                         </div>
                         <span className="font-medium">{MARKET_DISPLAY_NAMES[position.symbol]}</span>
-                        <span className="text-muted-foreground">{position.leverage}x</span>
+                        <span className="text-muted-foreground">{position.leverage}×</span>
                       </div>
 
                       <div className="flex items-center gap-4">
                         <div className="text-right">
-                          <div className="text-muted-foreground">Entry</div>
-                          <div>${position.entryPrice.toLocaleString()}</div>
+                          <div className="text-[10px] text-muted-foreground">ENTRY</div>
+                          <div className="tabular-nums">${position.entryPrice.toLocaleString()}</div>
                         </div>
                         <div className="text-right">
-                          <div className="text-muted-foreground">Mark</div>
-                          <div>${currentPrice.toLocaleString()}</div>
+                          <div className="text-[10px] text-muted-foreground">MARK</div>
+                          <div className="tabular-nums">${currentPrice.toLocaleString()}</div>
                         </div>
                         <div className="text-right min-w-[80px]">
-                          <div className={isProfit ? 'text-green-400' : 'text-red-400'}>
+                          <div className={`tabular-nums ${isProfit ? 'text-success' : 'text-destructive'}`}>
                             {isProfit ? '+' : ''}{pnl.toFixed(2)} USDC
                           </div>
-                          <div className={`text-xs ${isProfit ? 'text-green-400/70' : 'text-red-400/70'}`}>
+                          <div className={`text-[10px] tabular-nums ${isProfit ? 'text-success/70' : 'text-destructive/70'}`}>
                             {isProfit ? '+' : ''}{pnlPercent.toFixed(2)}%
                           </div>
                         </div>
@@ -126,7 +126,7 @@ export function TradingTabs({
                           variant="ghost" 
                           size="sm" 
                           onClick={() => onClosePosition(position.id, currentPrice)}
-                          className="h-6 w-6 p-0 hover:bg-red-500/20 hover:text-red-400"
+                          className="h-6 w-6 p-0 hover:bg-destructive/10 hover:text-destructive"
                         >
                           <X className="w-3 h-3" />
                         </Button>
@@ -150,30 +150,30 @@ export function TradingTabs({
                 {limitOrders.map((order) => (
                   <div 
                     key={order.id} 
-                    className="flex items-center justify-between p-2 rounded bg-muted/30 text-xs"
+                    className="flex items-center justify-between p-2 rounded bg-muted/20 text-xs"
                   >
                     <div className="flex items-center gap-3">
-                      <span className={order.side === 'long' ? 'text-green-400' : 'text-red-400'}>
+                      <span className={order.side === 'long' ? 'text-success' : 'text-destructive'}>
                         {order.side.toUpperCase()}
                       </span>
                       <span className="font-medium">{MARKET_DISPLAY_NAMES[order.symbol]}</span>
-                      <span className="text-muted-foreground">{order.leverage}x</span>
+                      <span className="text-muted-foreground">{order.leverage}×</span>
                     </div>
 
                     <div className="flex items-center gap-4">
                       <div className="text-right">
-                        <div className="text-muted-foreground">Price</div>
-                        <div>${order.price.toLocaleString()}</div>
+                        <div className="text-[10px] text-muted-foreground">PRICE</div>
+                        <div className="tabular-nums">${order.price.toLocaleString()}</div>
                       </div>
                       <div className="text-right">
-                        <div className="text-muted-foreground">Size</div>
-                        <div>${order.size.toLocaleString()}</div>
+                        <div className="text-[10px] text-muted-foreground">SIZE</div>
+                        <div className="tabular-nums">${order.size.toLocaleString()}</div>
                       </div>
                       <Button 
                         variant="ghost" 
                         size="sm" 
                         onClick={() => onCancelOrder(order.id)}
-                        className="h-6 w-6 p-0 hover:bg-red-500/20 hover:text-red-400"
+                        className="h-6 w-6 p-0 hover:bg-destructive/10 hover:text-destructive"
                       >
                         <X className="w-3 h-3" />
                       </Button>
@@ -198,10 +198,10 @@ export function TradingTabs({
                   return (
                     <div 
                       key={trade.id} 
-                      className="flex items-center justify-between p-2 rounded bg-muted/30 text-xs"
+                      className="flex items-center justify-between p-2 rounded bg-muted/20 text-xs"
                     >
                       <div className="flex items-center gap-3">
-                        <span className={trade.side === 'long' ? 'text-green-400' : 'text-red-400'}>
+                        <span className={trade.side === 'long' ? 'text-success' : 'text-destructive'}>
                           {trade.side.toUpperCase()}
                         </span>
                         <span className="font-medium">{MARKET_DISPLAY_NAMES[trade.symbol]}</span>
@@ -209,13 +209,13 @@ export function TradingTabs({
 
                       <div className="flex items-center gap-4">
                         <div className="text-right">
-                          <div className="text-muted-foreground">Entry → Exit</div>
-                          <div>${trade.entryPrice.toLocaleString()} → ${trade.exitPrice.toLocaleString()}</div>
+                          <div className="text-[10px] text-muted-foreground">ENTRY → EXIT</div>
+                          <div className="tabular-nums">${trade.entryPrice.toLocaleString()} → ${trade.exitPrice.toLocaleString()}</div>
                         </div>
-                        <div className={`text-right min-w-[80px] ${isProfit ? 'text-green-400' : 'text-red-400'}`}>
+                        <div className={`text-right min-w-[80px] tabular-nums ${isProfit ? 'text-success' : 'text-destructive'}`}>
                           {isProfit ? '+' : ''}{trade.pnl.toFixed(2)} USDC
                         </div>
-                        <div className="text-muted-foreground text-xs">
+                        <div className="text-muted-foreground text-[10px]">
                           {new Date(trade.closedAt).toLocaleDateString()}
                         </div>
                       </div>

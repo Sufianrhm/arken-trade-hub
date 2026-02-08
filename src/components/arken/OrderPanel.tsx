@@ -50,7 +50,6 @@ export function OrderPanel({
   const margin = sizeNum / leverage[0];
   const canTrade = isConnected && sizeNum > 0 && margin <= balance;
 
-  // Calculate liquidation price
   const calculateLiqPrice = (side: OrderSide) => {
     const price = orderType === 'market' ? currentPrice : parseFloat(limitPrice) || currentPrice;
     const maintenanceMargin = 0.005;
@@ -77,7 +76,6 @@ export function OrderPanel({
       stopLoss: stopLoss ? parseFloat(stopLoss) : undefined,
     });
 
-    // Reset form
     setSize('');
     setLimitPrice('');
     setTakeProfit('');
@@ -93,74 +91,74 @@ export function OrderPanel({
   };
 
   return (
-    <div className="glass-panel p-4 md:p-5 space-y-4">
+    <div className="panel p-4 space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-foreground text-sm">Place Order</h3>
+        <span className="text-label">PLACE ORDER</span>
         
         {/* Margin Mode Toggle */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <button
             onClick={() => onMarginModeChange('cross')}
-            className={`px-2 py-1 text-[10px] font-medium rounded ${
+            className={`px-2 py-1 text-[10px] font-medium rounded transition-colors duration-75 ${
               marginMode === 'cross' 
                 ? 'bg-primary/20 text-primary' 
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            Cross
+            CROSS
           </button>
           <button
             onClick={() => onMarginModeChange('isolated')}
-            className={`px-2 py-1 text-[10px] font-medium rounded ${
+            className={`px-2 py-1 text-[10px] font-medium rounded transition-colors duration-75 ${
               marginMode === 'isolated' 
                 ? 'bg-primary/20 text-primary' 
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            Isolated
+            ISOLATED
           </button>
         </div>
       </div>
 
       {/* Order Type Toggle */}
       <Tabs value={orderType} onValueChange={(v) => setOrderType(v as OrderType)}>
-        <TabsList className="w-full bg-muted/50">
-          <TabsTrigger value="market" className="flex-1 data-[state=active]:bg-primary/20 data-[state=active]:text-primary text-xs">
-            Market
+        <TabsList className="w-full bg-muted/50 p-0.5">
+          <TabsTrigger value="market" className="flex-1 text-xs data-[state=active]:bg-card">
+            MARKET
           </TabsTrigger>
-          <TabsTrigger value="limit" className="flex-1 data-[state=active]:bg-primary/20 data-[state=active]:text-primary text-xs">
-            Limit
+          <TabsTrigger value="limit" className="flex-1 text-xs data-[state=active]:bg-card">
+            LIMIT
           </TabsTrigger>
         </TabsList>
       </Tabs>
 
       {/* Price Display / Input */}
       {orderType === 'market' ? (
-        <div className="space-y-1">
-          <Label className="text-muted-foreground text-xs">Price</Label>
-          <div className="glass-panel border-border/50 rounded-lg px-3 py-2 flex items-center justify-between">
+        <div className="space-y-1.5">
+          <Label className="text-label">PRICE</Label>
+          <div className="bg-muted/30 border border-border rounded px-3 py-2 flex items-center justify-between">
             <span className="text-foreground font-medium text-sm tabular-nums">${formatPrice(currentPrice)}</span>
-            <span className="text-[10px] text-primary">Market</span>
+            <span className="text-[10px] text-primary font-medium">MARKET</span>
           </div>
         </div>
       ) : (
-        <div className="space-y-1">
-          <Label htmlFor="limit-price" className="text-muted-foreground text-xs">Limit Price</Label>
+        <div className="space-y-1.5">
+          <Label htmlFor="limit-price" className="text-label">LIMIT PRICE</Label>
           <Input
             id="limit-price"
             type="number"
             value={limitPrice}
             onChange={(e) => setLimitPrice(e.target.value)}
             placeholder={formatPrice(currentPrice)}
-            className="glass-panel border-border/50 focus:border-primary/50 text-sm"
+            className="bg-muted/30 border-border focus:border-primary text-sm"
           />
         </div>
       )}
 
       {/* Size Input */}
-      <div className="space-y-1">
+      <div className="space-y-1.5">
         <div className="flex justify-between">
-          <Label htmlFor="size" className="text-muted-foreground text-xs">Size (USDC)</Label>
+          <Label htmlFor="size" className="text-label">SIZE (USDC)</Label>
           <span className="text-[10px] text-muted-foreground tabular-nums">
             Available: ${balance.toFixed(2)}
           </span>
@@ -171,11 +169,11 @@ export function OrderPanel({
           value={size}
           onChange={(e) => setSize(e.target.value)}
           placeholder="0.00"
-          className="glass-panel border-border/50 focus:border-primary/50 text-sm"
+          className="bg-muted/30 border-border focus:border-primary text-sm"
         />
         {sizeNum > 0 && (
           <p className="text-[10px] text-muted-foreground tabular-nums">
-            Margin: ${margin.toFixed(2)} | Liq. Long: ${formatPrice(calculateLiqPrice('long'))} | Short: ${formatPrice(calculateLiqPrice('short'))}
+            Margin: ${margin.toFixed(2)} • Liq. Long: ${formatPrice(calculateLiqPrice('long'))} • Short: ${formatPrice(calculateLiqPrice('short'))}
           </p>
         )}
       </div>
@@ -183,8 +181,8 @@ export function OrderPanel({
       {/* Leverage Slider */}
       <div className="space-y-2">
         <div className="flex justify-between">
-          <Label className="text-muted-foreground text-xs">Leverage</Label>
-          <span className="text-xs font-medium text-primary">{leverage[0]}x</span>
+          <Label className="text-label">LEVERAGE</Label>
+          <span className="text-xs font-medium text-primary">{leverage[0]}×</span>
         </div>
         <Slider
           value={leverage}
@@ -195,10 +193,10 @@ export function OrderPanel({
           className="py-1"
         />
         <div className="flex justify-between text-[10px] text-muted-foreground">
-          <span>1x</span>
-          <span>10x</span>
-          <span>25x</span>
-          <span>50x</span>
+          <span>1×</span>
+          <span>10×</span>
+          <span>25×</span>
+          <span>50×</span>
         </div>
       </div>
 
@@ -221,27 +219,27 @@ export function OrderPanel({
           <div className="space-y-1">
             <Label className="text-[10px] text-success flex items-center gap-1">
               <Target className="w-3 h-3" />
-              Take Profit
+              TAKE PROFIT
             </Label>
             <Input
               type="number"
               value={takeProfit}
               onChange={(e) => setTakeProfit(e.target.value)}
               placeholder={formatPrice(currentPrice * 1.05)}
-              className="glass-panel border-success/30 focus:border-success/50 text-xs h-8"
+              className="bg-muted/30 border-success/30 focus:border-success text-xs h-8"
             />
           </div>
           <div className="space-y-1">
             <Label className="text-[10px] text-destructive flex items-center gap-1">
               <Shield className="w-3 h-3" />
-              Stop Loss
+              STOP LOSS
             </Label>
             <Input
               type="number"
               value={stopLoss}
               onChange={(e) => setStopLoss(e.target.value)}
               placeholder={formatPrice(currentPrice * 0.95)}
-              className="glass-panel border-destructive/30 focus:border-destructive/50 text-xs h-8"
+              className="bg-muted/30 border-destructive/30 focus:border-destructive text-xs h-8"
             />
           </div>
         </div>
@@ -261,7 +259,7 @@ export function OrderPanel({
           <Button
             onClick={() => handlePlaceOrder('long')}
             disabled={!canTrade}
-            className="bg-success hover:bg-success/90 text-foreground font-semibold py-5 glow-success transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+            className="bg-success hover:bg-success/90 text-white font-semibold py-5 transition-all duration-75 disabled:opacity-50"
           >
             <TrendingUp className="w-4 h-4 mr-1.5" />
             LONG
@@ -269,7 +267,7 @@ export function OrderPanel({
           <Button
             onClick={() => handlePlaceOrder('short')}
             disabled={!canTrade}
-            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground font-semibold py-5 glow-destructive transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+            className="bg-destructive hover:bg-destructive/90 text-white font-semibold py-5 transition-all duration-75 disabled:opacity-50"
           >
             <TrendingDown className="w-4 h-4 mr-1.5" />
             SHORT
@@ -280,7 +278,7 @@ export function OrderPanel({
           onClick={onConnectClick}
           className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-5"
         >
-          Connect to Trade
+          CONNECT TO TRADE
         </Button>
       )}
     </div>

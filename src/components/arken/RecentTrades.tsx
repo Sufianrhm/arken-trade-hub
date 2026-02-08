@@ -24,14 +24,12 @@ export function RecentTrades({ symbol, currentPrice }: RecentTradesProps) {
   }, []);
 
   useEffect(() => {
-    // Generate initial mock trades
     const initialTrades: RecentTrade[] = [];
     for (let i = 0; i < 20; i++) {
       initialTrades.push(generateMockTrade(currentPrice));
     }
     setTrades(initialTrades.reverse());
 
-    // Try WebSocket connection
     const symbolLower = symbol.toLowerCase();
     const wsUrl = `wss://stream.binance.com:9443/ws/${symbolLower}@trade`;
 
@@ -52,7 +50,6 @@ export function RecentTrades({ symbol, currentPrice }: RecentTradesProps) {
       };
 
       ws.onerror = () => {
-        // Fall back to mock updates
         const interval = setInterval(() => {
           setTrades(prev => {
             const newTrade = generateMockTrade(prev[0]?.price || currentPrice);
@@ -63,7 +60,6 @@ export function RecentTrades({ symbol, currentPrice }: RecentTradesProps) {
         return () => clearInterval(interval);
       };
     } catch {
-      // Use mock data
       const interval = setInterval(() => {
         setTrades(prev => {
           const newTrade = generateMockTrade(prev[0]?.price || currentPrice);
@@ -101,16 +97,19 @@ export function RecentTrades({ symbol, currentPrice }: RecentTradesProps) {
   };
 
   return (
-    <div className="glass-panel p-3 h-full flex flex-col">
+    <div className="panel p-3 h-full flex flex-col">
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-xs font-semibold text-foreground">Recent Trades</h3>
-        <span className="text-[10px] text-muted-foreground">Live</span>
+        <span className="text-label">RECENT TRADES</span>
+        <div className="flex items-center gap-1.5">
+          <div className="w-1.5 h-1.5 rounded-full bg-success" />
+          <span className="text-[10px] text-muted-foreground">LIVE</span>
+        </div>
       </div>
 
-      <div className="grid grid-cols-3 text-[10px] text-muted-foreground mb-1 px-1">
-        <span>Price</span>
-        <span className="text-right">Qty</span>
-        <span className="text-right">Time</span>
+      <div className="grid grid-cols-3 text-label mb-1 px-1">
+        <span>PRICE</span>
+        <span className="text-right">QTY</span>
+        <span className="text-right">TIME</span>
       </div>
 
       <ScrollArea className="flex-1">
@@ -118,7 +117,7 @@ export function RecentTrades({ symbol, currentPrice }: RecentTradesProps) {
           {trades.map((trade) => (
             <div 
               key={trade.id}
-              className="grid grid-cols-3 text-[10px] py-0.5 px-1 hover:bg-muted/20 transition-colors"
+              className="grid grid-cols-3 text-[10px] py-0.5 px-1 hover:bg-muted/20 transition-colors duration-75"
             >
               <span className={`tabular-nums ${trade.isBuyerMaker ? 'text-destructive' : 'text-success'}`}>
                 {formatPrice(trade.price)}
