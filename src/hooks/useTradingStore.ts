@@ -112,6 +112,8 @@ export function useTradingStore() {
       totalPnl: 0,
       tradesCount: 0,
       winRate: 0,
+      arkxBalance: 0,
+      arkxRewards: [],
     };
 
     setUsers(prev => [...prev, newUser]);

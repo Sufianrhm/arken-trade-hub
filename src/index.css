@@ -152,6 +152,19 @@
     animation: slideUp 0.2s ease-out forwards;
   }
 
+  /* Flash animation for price updates */
+  .animate-flash {
+    animation: flash-green 0.3s ease-out;
+  }
+
+  .animate-flash-green {
+    animation: flash-green 0.4s ease-out;
+  }
+
+  .animate-flash-red {
+    animation: flash-red 0.4s ease-out;
+  }
+
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -166,6 +179,16 @@
       opacity: 1; 
       transform: translateY(0); 
     }
+  }
+
+  @keyframes flash-green {
+    0%, 100% { background-color: transparent; }
+    50% { background-color: hsl(161 100% 41% / 0.15); }
+  }
+
+  @keyframes flash-red {
+    0%, 100% { background-color: transparent; }
+    50% { background-color: hsl(352 100% 62% / 0.15); }
   }
 
   /* Hover states - fast transition */

@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
-import { TrendingUp, TrendingDown, AlertCircle, Target, Shield } from 'lucide-react';
+import { TrendingUp, TrendingDown, AlertCircle, Target, Shield, DollarSign } from 'lucide-react';
 import type { MarketSymbol, OrderType, OrderSide, MarginMode } from '@/types/trading';
+import { MARKET_DISPLAY_NAMES, TRADING_FEES, LEVERAGE_MARKS } from '@/types/trading';
 
 interface OrderPanelProps {
   symbol: MarketSymbol;
@@ -50,6 +51,12 @@ export function OrderPanel({
   const margin = sizeNum / leverage[0];
   const canTrade = isConnected && sizeNum > 0 && margin <= balance;
 
+  // Calculate fees
+  const fees = useMemo(() => {
+    const feeRate = orderType === 'limit' ? TRADING_FEES.maker : TRADING_FEES.taker;
+    return sizeNum * feeRate;
+  }, [sizeNum, orderType]);
+
   const calculateLiqPrice = (side: OrderSide) => {
     const price = orderType === 'market' ? currentPrice : parseFloat(limitPrice) || currentPrice;
     const maintenanceMargin = 0.005;
@@ -90,43 +97,56 @@ export function OrderPanel({
     return price.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 });
   };
 
+  // Quick size buttons
+  const handleQuickSize = (percent: number) => {
+    const maxSize = balance * leverage[0] * percent;
+    setSize(maxSize.toFixed(2));
+  };
+
   return (
-    <div className="panel p-4 space-y-4">
+    <div className="panel p-3 space-y-3 h-full">
+      {/* Header with Balance */}
       <div className="flex items-center justify-between">
-        <span className="text-label">PLACE ORDER</span>
-        
-        {/* Margin Mode Toggle */}
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => onMarginModeChange('cross')}
-            className={`px-2 py-1 text-[10px] font-medium rounded transition-colors duration-75 ${
-              marginMode === 'cross' 
-                ? 'bg-primary/20 text-primary' 
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            CROSS
-          </button>
-          <button
-            onClick={() => onMarginModeChange('isolated')}
-            className={`px-2 py-1 text-[10px] font-medium rounded transition-colors duration-75 ${
-              marginMode === 'isolated' 
-                ? 'bg-primary/20 text-primary' 
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            ISOLATED
-          </button>
+        <div className="flex items-center gap-2">
+          <DollarSign className="w-4 h-4 text-primary" />
+          <span className="text-label">USDX BALANCE</span>
         </div>
+        <span className="text-sm font-semibold text-foreground tabular-nums">
+          ${balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+        </span>
+      </div>
+
+      {/* Margin Mode Toggle */}
+      <div className="flex items-center gap-1 p-0.5 bg-muted/50 rounded">
+        <button
+          onClick={() => onMarginModeChange('cross')}
+          className={`flex-1 px-3 py-1.5 text-[10px] font-medium rounded transition-colors duration-75 ${
+            marginMode === 'cross' 
+              ? 'bg-card text-foreground shadow-sm' 
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          CROSS
+        </button>
+        <button
+          onClick={() => onMarginModeChange('isolated')}
+          className={`flex-1 px-3 py-1.5 text-[10px] font-medium rounded transition-colors duration-75 ${
+            marginMode === 'isolated' 
+              ? 'bg-card text-foreground shadow-sm' 
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          ISOLATED
+        </button>
       </div>
 
       {/* Order Type Toggle */}
       <Tabs value={orderType} onValueChange={(v) => setOrderType(v as OrderType)}>
-        <TabsList className="w-full bg-muted/50 p-0.5">
-          <TabsTrigger value="market" className="flex-1 text-xs data-[state=active]:bg-card">
+        <TabsList className="w-full bg-muted/50 p-0.5 h-8">
+          <TabsTrigger value="market" className="flex-1 text-[10px] h-6 data-[state=active]:bg-card">
             MARKET
           </TabsTrigger>
-          <TabsTrigger value="limit" className="flex-1 text-xs data-[state=active]:bg-card">
+          <TabsTrigger value="limit" className="flex-1 text-[10px] h-6 data-[state=active]:bg-card">
             LIMIT
           </TabsTrigger>
         </TabsList>
@@ -134,34 +154,31 @@ export function OrderPanel({
 
       {/* Price Display / Input */}
       {orderType === 'market' ? (
-        <div className="space-y-1.5">
-          <Label className="text-label">PRICE</Label>
+        <div className="space-y-1">
+          <Label className="text-label text-[10px]">PRICE</Label>
           <div className="bg-muted/30 border border-border rounded px-3 py-2 flex items-center justify-between">
-            <span className="text-foreground font-medium text-sm tabular-nums">${formatPrice(currentPrice)}</span>
-            <span className="text-[10px] text-primary font-medium">MARKET</span>
+            <span className="text-foreground font-semibold text-sm tabular-nums">${formatPrice(currentPrice)}</span>
+            <span className="text-[9px] text-primary font-medium bg-primary/10 px-1.5 py-0.5 rounded">MARKET</span>
           </div>
         </div>
       ) : (
-        <div className="space-y-1.5">
-          <Label htmlFor="limit-price" className="text-label">LIMIT PRICE</Label>
+        <div className="space-y-1">
+          <Label htmlFor="limit-price" className="text-label text-[10px]">LIMIT PRICE</Label>
           <Input
             id="limit-price"
             type="number"
             value={limitPrice}
             onChange={(e) => setLimitPrice(e.target.value)}
             placeholder={formatPrice(currentPrice)}
-            className="bg-muted/30 border-border focus:border-primary text-sm"
+            className="bg-muted/30 border-border focus:border-primary text-sm h-9"
           />
         </div>
       )}
 
       {/* Size Input */}
-      <div className="space-y-1.5">
+      <div className="space-y-1">
         <div className="flex justify-between">
-          <Label htmlFor="size" className="text-label">SIZE (USDC)</Label>
-          <span className="text-[10px] text-muted-foreground tabular-nums">
-            Available: ${balance.toFixed(2)}
-          </span>
+          <Label htmlFor="size" className="text-label text-[10px]">SIZE (USDX)</Label>
         </div>
         <Input
           id="size"
@@ -169,20 +186,27 @@ export function OrderPanel({
           value={size}
           onChange={(e) => setSize(e.target.value)}
           placeholder="0.00"
-          className="bg-muted/30 border-border focus:border-primary text-sm"
+          className="bg-muted/30 border-border focus:border-primary text-sm h-9"
         />
-        {sizeNum > 0 && (
-          <p className="text-[10px] text-muted-foreground tabular-nums">
-            Margin: ${margin.toFixed(2)} • Liq. Long: ${formatPrice(calculateLiqPrice('long'))} • Short: ${formatPrice(calculateLiqPrice('short'))}
-          </p>
-        )}
+        {/* Quick Size Buttons */}
+        <div className="grid grid-cols-4 gap-1">
+          {[0.25, 0.5, 0.75, 1].map((pct) => (
+            <button
+              key={pct}
+              onClick={() => handleQuickSize(pct)}
+              className="text-[9px] py-1 text-muted-foreground hover:text-foreground hover:bg-muted rounded transition-colors"
+            >
+              {pct * 100}%
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Leverage Slider */}
       <div className="space-y-2">
         <div className="flex justify-between">
-          <Label className="text-label">LEVERAGE</Label>
-          <span className="text-xs font-medium text-primary">{leverage[0]}×</span>
+          <Label className="text-label text-[10px]">LEVERAGE</Label>
+          <span className="text-xs font-bold text-primary tabular-nums">{leverage[0]}×</span>
         </div>
         <Slider
           value={leverage}
@@ -192,19 +216,28 @@ export function OrderPanel({
           step={1}
           className="py-1"
         />
-        <div className="flex justify-between text-[10px] text-muted-foreground">
-          <span>1×</span>
-          <span>10×</span>
-          <span>25×</span>
-          <span>50×</span>
+        <div className="flex justify-between">
+          {LEVERAGE_MARKS.map((mark) => (
+            <button
+              key={mark}
+              onClick={() => setLeverage([mark])}
+              className={`text-[9px] px-1.5 py-0.5 rounded transition-colors ${
+                leverage[0] === mark 
+                  ? 'text-primary bg-primary/10' 
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {mark}×
+            </button>
+          ))}
         </div>
       </div>
 
       {/* TP/SL Toggle */}
-      <div className="flex items-center justify-between py-1">
+      <div className="flex items-center justify-between py-1 border-t border-border pt-3">
         <div className="flex items-center gap-2">
-          <Target className="w-3.5 h-3.5 text-muted-foreground" />
-          <span className="text-xs text-muted-foreground">TP/SL</span>
+          <Target className="w-3 h-3 text-muted-foreground" />
+          <span className="text-[10px] text-muted-foreground font-medium">TP / SL</span>
         </div>
         <Switch
           checked={showTPSL}
@@ -217,8 +250,8 @@ export function OrderPanel({
       {showTPSL && (
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1">
-            <Label className="text-[10px] text-success flex items-center gap-1">
-              <Target className="w-3 h-3" />
+            <Label className="text-[9px] text-success flex items-center gap-1">
+              <Target className="w-2.5 h-2.5" />
               TAKE PROFIT
             </Label>
             <Input
@@ -226,12 +259,12 @@ export function OrderPanel({
               value={takeProfit}
               onChange={(e) => setTakeProfit(e.target.value)}
               placeholder={formatPrice(currentPrice * 1.05)}
-              className="bg-muted/30 border-success/30 focus:border-success text-xs h-8"
+              className="bg-success/5 border-success/20 focus:border-success text-[11px] h-7"
             />
           </div>
           <div className="space-y-1">
-            <Label className="text-[10px] text-destructive flex items-center gap-1">
-              <Shield className="w-3 h-3" />
+            <Label className="text-[9px] text-destructive flex items-center gap-1">
+              <Shield className="w-2.5 h-2.5" />
               STOP LOSS
             </Label>
             <Input
@@ -239,16 +272,38 @@ export function OrderPanel({
               value={stopLoss}
               onChange={(e) => setStopLoss(e.target.value)}
               placeholder={formatPrice(currentPrice * 0.95)}
-              className="bg-muted/30 border-destructive/30 focus:border-destructive text-xs h-8"
+              className="bg-destructive/5 border-destructive/20 focus:border-destructive text-[11px] h-7"
             />
+          </div>
+        </div>
+      )}
+
+      {/* Order Summary */}
+      {sizeNum > 0 && (
+        <div className="space-y-1 text-[10px] text-muted-foreground border-t border-border pt-2">
+          <div className="flex justify-between">
+            <span>Margin Required</span>
+            <span className="text-foreground tabular-nums">${margin.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Fee ({orderType === 'limit' ? 'Maker' : 'Taker'})</span>
+            <span className="text-foreground tabular-nums">${fees.toFixed(4)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Liq. Price (Long)</span>
+            <span className="text-destructive tabular-nums">${formatPrice(calculateLiqPrice('long'))}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Liq. Price (Short)</span>
+            <span className="text-destructive tabular-nums">${formatPrice(calculateLiqPrice('short'))}</span>
           </div>
         </div>
       )}
 
       {/* Error Message */}
       {isConnected && sizeNum > 0 && margin > balance && (
-        <div className="flex items-center gap-2 text-destructive text-xs">
-          <AlertCircle className="w-3.5 h-3.5" />
+        <div className="flex items-center gap-2 text-destructive text-[10px] bg-destructive/10 px-2 py-1.5 rounded">
+          <AlertCircle className="w-3 h-3" />
           <span>Insufficient balance</span>
         </div>
       )}
@@ -259,7 +314,7 @@ export function OrderPanel({
           <Button
             onClick={() => handlePlaceOrder('long')}
             disabled={!canTrade}
-            className="bg-success hover:bg-success/90 text-white font-semibold py-5 transition-all duration-75 disabled:opacity-50"
+            className="bg-success hover:bg-success/90 text-white font-semibold h-11 text-sm transition-all duration-75 disabled:opacity-40"
           >
             <TrendingUp className="w-4 h-4 mr-1.5" />
             LONG
@@ -267,7 +322,7 @@ export function OrderPanel({
           <Button
             onClick={() => handlePlaceOrder('short')}
             disabled={!canTrade}
-            className="bg-destructive hover:bg-destructive/90 text-white font-semibold py-5 transition-all duration-75 disabled:opacity-50"
+            className="bg-destructive hover:bg-destructive/90 text-white font-semibold h-11 text-sm transition-all duration-75 disabled:opacity-40"
           >
             <TrendingDown className="w-4 h-4 mr-1.5" />
             SHORT
@@ -276,7 +331,7 @@ export function OrderPanel({
       ) : (
         <Button
           onClick={onConnectClick}
-          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-5"
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium h-11"
         >
           CONNECT TO TRADE
         </Button>

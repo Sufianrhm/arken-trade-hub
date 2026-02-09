@@ -222,27 +222,14 @@ export function useBinanceWebSocket(symbol: MarketSymbol, timeframe: Timeframe, 
   }, [symbol, currentPrice, getIntervalSeconds]);
 
   const getDefaultPrice = (sym: MarketSymbol): number => {
-    const defaults: Partial<Record<MarketSymbol, number>> = {
-      'BTCUSDT': 70000,
-      'ETHUSDT': 2000,
-      'SOLUSDT': 85,
-      'BNBUSDT': 600,
-      'XRPUSDT': 0.6,
-      'ADAUSDT': 0.5,
-      'DOGEUSDT': 0.15,
-      'MATICUSDT': 0.8,
-      'DOTUSDT': 7,
-      'AVAXUSDT': 35,
-      'LINKUSDT': 15,
-      'LTCUSDT': 80,
-      'ATOMUSDT': 9,
-      'UNIUSDT': 10,
-      'NEARUSDT': 5,
-      'APTUSDT': 10,
-      'ARBUSDT': 1.2,
-      'OPUSDT': 2.5,
-      'SUIUSDT': 1.5,
-      'SEIUSDT': 0.5,
+    const defaults: Record<MarketSymbol, number> = {
+      'BTCUSDT': 68000,
+      'ETHUSDT': 2020,
+      'SOLUSDT': 83,
+      'BNBUSDT': 618,
+      'XRPUSDT': 1.38,
+      'DOGEUSDT': 0.093,
+      'SUIUSDT': 0.93,
     };
     return defaults[sym] ?? 100;
   };

@@ -1,5 +1,4 @@
 import type { PriceData } from '@/types/trading';
-import { TrendingUp, TrendingDown } from 'lucide-react';
 
 interface MarketStatsProps {
   data: PriceData | undefined;
@@ -9,23 +8,18 @@ interface MarketStatsProps {
 export function MarketStats({ data, isLoading }: MarketStatsProps) {
   if (isLoading || !data) {
     return (
-      <div className="panel p-3 animate-pulse">
-        <div className="flex gap-6">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="space-y-1">
-              <div className="h-3 w-12 bg-muted rounded" />
-              <div className="h-4 w-16 bg-muted rounded" />
-            </div>
-          ))}
-        </div>
+      <div className="flex gap-4 animate-pulse">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="space-y-0.5">
+            <div className="h-2.5 w-10 bg-muted rounded" />
+            <div className="h-3.5 w-14 bg-muted rounded" />
+          </div>
+        ))}
       </div>
     );
   }
 
   const formatPrice = (price: number) => {
-    if (price >= 1000000) {
-      return `${(price / 1000000).toFixed(2)}M`;
-    }
     if (price >= 1000) {
       return price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
@@ -45,42 +39,29 @@ export function MarketStats({ data, isLoading }: MarketStatsProps) {
     return volume.toFixed(2);
   };
 
-  const isPositive = data.changePercent24h >= 0;
-
   return (
-    <div className="panel p-3">
-      <div className="flex items-center gap-6 md:gap-8 overflow-x-auto scrollbar-hide">
-        {/* 24h Change */}
-        <div className="flex-shrink-0">
-          <div className="text-label mb-1">24H CHANGE</div>
-          <div className={`flex items-center gap-1 text-sm font-semibold ${isPositive ? 'text-success' : 'text-destructive'}`}>
-            {isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-            <span className="tabular-nums">{isPositive ? '+' : ''}{data.changePercent24h.toFixed(2)}%</span>
-          </div>
+    <div className="flex items-center gap-4 md:gap-6 text-xs">
+      {/* 24h High */}
+      <div className="hidden sm:block">
+        <div className="text-[9px] text-muted-foreground mb-0.5">24H HIGH</div>
+        <div className="text-foreground tabular-nums font-medium text-success">
+          ${formatPrice(data.high24h)}
         </div>
+      </div>
 
-        {/* 24h High */}
-        <div className="flex-shrink-0">
-          <div className="text-label mb-1">24H HIGH</div>
-          <div className="text-sm text-foreground tabular-nums">
-            ${formatPrice(data.high24h)}
-          </div>
+      {/* 24h Low */}
+      <div className="hidden sm:block">
+        <div className="text-[9px] text-muted-foreground mb-0.5">24H LOW</div>
+        <div className="text-foreground tabular-nums font-medium text-destructive">
+          ${formatPrice(data.low24h)}
         </div>
+      </div>
 
-        {/* 24h Low */}
-        <div className="flex-shrink-0">
-          <div className="text-label mb-1">24H LOW</div>
-          <div className="text-sm text-foreground tabular-nums">
-            ${formatPrice(data.low24h)}
-          </div>
-        </div>
-
-        {/* 24h Volume */}
-        <div className="flex-shrink-0">
-          <div className="text-label mb-1">24H VOLUME</div>
-          <div className="text-sm text-foreground tabular-nums">
-            ${formatVolume(data.volume24h)}
-          </div>
+      {/* 24h Volume */}
+      <div>
+        <div className="text-[9px] text-muted-foreground mb-0.5">24H VOL</div>
+        <div className="text-foreground tabular-nums font-medium">
+          ${formatVolume(data.volume24h)}
         </div>
       </div>
     </div>
