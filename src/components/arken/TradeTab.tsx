@@ -63,28 +63,27 @@ export function TradeTab({
   const { klines, orderBook, isConnected: wsConnected } = useBinanceWebSocket(selectedMarket, timeframe, currentPrice);
 
   return (
-    <div className="space-y-3">
-      {/* Market Header */}
-      <div className="panel p-3 flex flex-col md:flex-row md:items-center gap-3">
+    <div className="space-y-2">
+      {/* Market Header Bar */}
+      <div className="panel px-3 py-2 flex flex-col md:flex-row md:items-center gap-3">
         <MarketSelector value={selectedMarket} onChange={setSelectedMarket} prices={prices} />
-        <PriceDisplay data={currentPriceData} isLoading={isLoadingPrices} />
+        <div className="flex-1">
+          <PriceDisplay data={currentPriceData} isLoading={isLoadingPrices} />
+        </div>
+        <MarketStats data={currentPriceData} isLoading={isLoadingPrices} />
       </div>
 
-      {/* Market Stats */}
-      <MarketStats data={currentPriceData} isLoading={isLoadingPrices} />
-
-      {/* Funding Rate + Mark/Index Price */}
-      <FundingRate symbol={selectedMarket} currentPrice={currentPrice} />
-
-      {/* Main Trading Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">
-        {/* Order Book - Left Side */}
-        <div className="lg:col-span-2 hidden lg:block h-[400px]">
-          <OrderBook data={orderBook} currentPrice={currentPrice} />
+      {/* Main Trading Grid - Binance/Hyperliquid Style */}
+      <div className="grid grid-cols-12 gap-2">
+        {/* Left Column - Order Book */}
+        <div className="col-span-12 lg:col-span-2 order-3 lg:order-1">
+          <div className="h-[300px] lg:h-[520px]">
+            <OrderBook data={orderBook} currentPrice={currentPrice} />
+          </div>
         </div>
 
-        {/* Chart - Center */}
-        <div className="lg:col-span-7">
+        {/* Center Column - Chart */}
+        <div className="col-span-12 lg:col-span-7 order-1 lg:order-2">
           <ChartPanel 
             data={currentPriceData} 
             symbol={MARKET_DISPLAY_NAMES[selectedMarket]}
@@ -93,10 +92,14 @@ export function TradeTab({
             onTimeframeChange={setTimeframe}
             selectedTimeframe={timeframe}
           />
+          {/* Funding Rate below chart on desktop */}
+          <div className="hidden lg:block mt-2">
+            <FundingRate symbol={selectedMarket} currentPrice={currentPrice} />
+          </div>
         </div>
 
-        {/* Order Panel - Right Side */}
-        <div className="lg:col-span-3">
+        {/* Right Column - Order Panel */}
+        <div className="col-span-12 lg:col-span-3 order-2 lg:order-3">
           <OrderPanel
             symbol={selectedMarket}
             currentPrice={currentPrice}
@@ -110,18 +113,21 @@ export function TradeTab({
         </div>
       </div>
 
-      {/* Mobile Order Book + Recent Trades */}
-      <div className="lg:hidden grid grid-cols-2 gap-3 h-[280px]">
-        <OrderBook data={orderBook} currentPrice={currentPrice} />
-        <RecentTrades symbol={selectedMarket} currentPrice={currentPrice} />
+      {/* Mobile Funding Rate */}
+      <div className="lg:hidden">
+        <FundingRate symbol={selectedMarket} currentPrice={currentPrice} />
       </div>
 
-      {/* Desktop Recent Trades */}
-      <div className="hidden lg:grid lg:grid-cols-12 gap-3 h-[180px]">
-        <div className="col-span-3">
-          <RecentTrades symbol={selectedMarket} currentPrice={currentPrice} />
+      {/* Recent Trades Row */}
+      <div className="grid grid-cols-12 gap-2">
+        <div className="col-span-12 lg:col-span-3">
+          <div className="h-[180px]">
+            <RecentTrades symbol={selectedMarket} currentPrice={currentPrice} />
+          </div>
         </div>
-        <div className="col-span-9">
+        
+        {/* Positions/Orders/History Tabs */}
+        <div className="col-span-12 lg:col-span-9">
           <TradingTabs
             positions={positions}
             limitOrders={limitOrders}
@@ -132,19 +138,6 @@ export function TradeTab({
             onExportCSV={onExportCSV}
           />
         </div>
-      </div>
-
-      {/* Mobile Positions/Orders */}
-      <div className="lg:hidden">
-        <TradingTabs
-          positions={positions}
-          limitOrders={limitOrders}
-          tradeHistory={tradeHistory}
-          prices={prices}
-          onClosePosition={onClosePosition}
-          onCancelOrder={onCancelOrder}
-          onExportCSV={onExportCSV}
-        />
       </div>
     </div>
   );

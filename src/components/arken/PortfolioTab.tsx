@@ -1,5 +1,6 @@
-import { Wallet, TrendingUp, Activity, History } from 'lucide-react';
+import { Wallet, TrendingUp, Activity, History, Gift, DollarSign } from 'lucide-react';
 import { PositionsTable } from './PositionsTable';
+import { RewardsPanel } from './RewardsPanel';
 import type { Position, Trade, PriceData, MarketSymbol } from '@/types/trading';
 import { MARKET_DISPLAY_NAMES } from '@/types/trading';
 
@@ -32,143 +33,174 @@ export function PortfolioTab({
     }, 0);
   };
 
+  const calculateTotalRealizedPnL = () => {
+    return tradeHistory.reduce((total, trade) => total + trade.pnl, 0);
+  };
+
   const unrealizedPnL = calculateTotalUnrealizedPnL();
+  const realizedPnL = calculateTotalRealizedPnL();
   const totalEquity = balance + unrealizedPnL;
+  const totalMargin = positions.reduce((sum, p) => sum + p.margin, 0);
 
   if (!isConnected) {
     return (
       <div className="panel p-8 md:p-16 text-center">
-        <div className="mx-auto p-4 rounded bg-primary/10 text-primary mb-6 w-fit">
+        <div className="mx-auto p-4 rounded-full bg-primary/10 text-primary mb-6 w-fit">
           <Wallet className="w-12 h-12" />
         </div>
-        <h2 className="text-xl font-semibold mb-3">CONNECT TO VIEW PORTFOLIO</h2>
-        <p className="text-muted-foreground mb-6 max-w-md mx-auto text-sm">
-          Connect your wallet or start paper trading to see your portfolio, positions, and trade history.
+        <h2 className="text-2xl font-bold mb-3">CONNECT TO VIEW PORTFOLIO</h2>
+        <p className="text-muted-foreground mb-8 max-w-md mx-auto">
+          Sign up or log in to track your positions, PnL, and earn ARKX rewards.
         </p>
         <button
           onClick={onConnectClick}
-          className="px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded transition-colors duration-75"
+          className="px-8 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded transition-colors duration-75"
         >
-          CONNECT
+          GET STARTED
         </button>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Portfolio Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="panel border-primary/20 p-6">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 rounded bg-primary/10">
-              <Wallet className="w-4 h-4 text-primary" />
-            </div>
-            <span className="text-label">TOTAL EQUITY</span>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {/* Total Equity */}
+        <div className="panel p-4 border-primary/30">
+          <div className="flex items-center gap-2 mb-2">
+            <DollarSign className="w-4 h-4 text-primary" />
+            <span className="text-label text-[10px]">TOTAL EQUITY</span>
           </div>
-          <p className="text-2xl font-semibold text-foreground tabular-nums">
+          <p className="text-2xl font-bold text-foreground tabular-nums">
             ${totalEquity.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
-          <p className="text-xs text-muted-foreground mt-1 tabular-nums">
-            Available: ${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <p className="text-[10px] text-muted-foreground mt-1 tabular-nums">
+            USDX
           </p>
         </div>
 
-        <div className="panel p-6">
-          <div className="flex items-center gap-3 mb-3">
-            <div className={`p-2 rounded ${unrealizedPnL >= 0 ? 'bg-success/10' : 'bg-destructive/10'}`}>
-              <TrendingUp className={`w-4 h-4 ${unrealizedPnL >= 0 ? 'text-success' : 'text-destructive'}`} />
-            </div>
-            <span className="text-label">UNREALIZED PNL</span>
+        {/* Available Balance */}
+        <div className="panel p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Wallet className="w-4 h-4 text-muted-foreground" />
+            <span className="text-label text-[10px]">AVAILABLE</span>
           </div>
-          <p className={`text-2xl font-semibold tabular-nums ${unrealizedPnL >= 0 ? 'text-success' : 'text-destructive'}`}>
-            {unrealizedPnL >= 0 ? '+' : ''}{unrealizedPnL.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <p className="text-2xl font-bold text-foreground tabular-nums">
+            ${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
-          <p className="text-xs text-muted-foreground mt-1">
-            From {positions.length} open position{positions.length !== 1 ? 's' : ''}
+          <p className="text-[10px] text-muted-foreground mt-1 tabular-nums">
+            Margin: ${totalMargin.toFixed(2)}
           </p>
         </div>
 
-        <div className="panel p-6">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 rounded bg-muted">
-              <Activity className="w-4 h-4 text-muted-foreground" />
-            </div>
-            <span className="text-label">OPEN POSITIONS</span>
+        {/* Unrealized PnL */}
+        <div className="panel p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <TrendingUp className={`w-4 h-4 ${unrealizedPnL >= 0 ? 'text-success' : 'text-destructive'}`} />
+            <span className="text-label text-[10px]">UNREALIZED PNL</span>
           </div>
-          <p className="text-2xl font-semibold text-foreground">
-            {positions.length}
+          <p className={`text-2xl font-bold tabular-nums ${unrealizedPnL >= 0 ? 'text-success' : 'text-destructive'}`}>
+            {unrealizedPnL >= 0 ? '+' : ''}${unrealizedPnL.toFixed(2)}
           </p>
-          <p className="text-xs text-muted-foreground mt-1">
-            Active trades
+          <p className="text-[10px] text-muted-foreground mt-1">
+            {positions.length} position{positions.length !== 1 ? 's' : ''}
+          </p>
+        </div>
+
+        {/* Realized PnL */}
+        <div className="panel p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <History className="w-4 h-4 text-muted-foreground" />
+            <span className="text-label text-[10px]">REALIZED PNL</span>
+          </div>
+          <p className={`text-2xl font-bold tabular-nums ${realizedPnL >= 0 ? 'text-success' : 'text-destructive'}`}>
+            {realizedPnL >= 0 ? '+' : ''}${realizedPnL.toFixed(2)}
+          </p>
+          <p className="text-[10px] text-muted-foreground mt-1">
+            {tradeHistory.length} trade{tradeHistory.length !== 1 ? 's' : ''}
           </p>
         </div>
       </div>
 
-      {/* Open Positions */}
-      {positions.length > 0 ? (
-        <PositionsTable
-          positions={positions}
-          prices={prices}
-          onClosePosition={onClosePosition}
-        />
-      ) : (
-        <div className="panel p-8 text-center">
-          <Activity className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
-          <p className="text-muted-foreground text-sm">No open positions</p>
-          <p className="text-xs text-muted-foreground mt-1">
-            Open a trade to see it here
-          </p>
-        </div>
-      )}
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Positions + History */}
+        <div className="lg:col-span-2 space-y-4">
+          {/* Open Positions */}
+          {positions.length > 0 ? (
+            <PositionsTable
+              positions={positions}
+              prices={prices}
+              onClosePosition={onClosePosition}
+            />
+          ) : (
+            <div className="panel p-8 text-center">
+              <Activity className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+              <p className="text-muted-foreground text-sm">No open positions</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Go to Trade to open a position
+              </p>
+            </div>
+          )}
 
-      {/* Trade History */}
-      <div className="panel p-4 md:p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <History className="w-4 h-4 text-muted-foreground" />
-          <span className="text-label">TRADE HISTORY</span>
-        </div>
+          {/* Trade History */}
+          <div className="panel p-4">
+            <div className="flex items-center gap-2 mb-4">
+              <History className="w-4 h-4 text-muted-foreground" />
+              <span className="text-label text-[10px]">TRADE HISTORY</span>
+              <span className="text-[10px] text-muted-foreground ml-auto">
+                {tradeHistory.length} trades
+              </span>
+            </div>
 
-        {tradeHistory.length > 0 ? (
-          <div className="space-y-2">
-            {tradeHistory.slice(0, 20).map((trade) => (
-              <div
-                key={trade.id}
-                className="flex items-center justify-between p-3 rounded bg-muted/20 hover:bg-muted/30 transition-colors duration-75"
-              >
-                <div className="flex items-center gap-3">
-                  <span 
-                    className={`text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded ${
-                      trade.side === 'long' 
-                        ? 'text-success bg-success/10' 
-                        : 'text-destructive bg-destructive/10'
-                    }`}
+            {tradeHistory.length > 0 ? (
+              <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                {tradeHistory.slice(0, 15).map((trade) => (
+                  <div
+                    key={trade.id}
+                    className="flex items-center justify-between p-3 rounded bg-muted/20 hover:bg-muted/30 transition-colors duration-75"
                   >
-                    {trade.side}
-                  </span>
-                  <span className="font-medium text-sm">{MARKET_DISPLAY_NAMES[trade.symbol]}</span>
-                  <span className="text-[10px] text-muted-foreground">{trade.leverage}×</span>
-                </div>
-                <div className="text-right">
-                  <p className={`font-semibold text-sm tabular-nums ${trade.pnl >= 0 ? 'text-success' : 'text-destructive'}`}>
-                    {trade.pnl >= 0 ? '+' : ''}${trade.pnl.toFixed(2)}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">
-                    {new Date(trade.closedAt).toLocaleDateString()}
-                  </p>
-                </div>
+                    <div className="flex items-center gap-3">
+                      <span 
+                        className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${
+                          trade.side === 'long' 
+                            ? 'text-success bg-success/10' 
+                            : 'text-destructive bg-destructive/10'
+                        }`}
+                      >
+                        {trade.side}
+                      </span>
+                      <span className="font-medium text-sm">{MARKET_DISPLAY_NAMES[trade.symbol]}</span>
+                      <span className="text-[10px] text-muted-foreground">{trade.leverage}×</span>
+                    </div>
+                    <div className="text-right">
+                      <p className={`font-semibold text-sm tabular-nums ${trade.pnl >= 0 ? 'text-success' : 'text-destructive'}`}>
+                        {trade.pnl >= 0 ? '+' : ''}${trade.pnl.toFixed(2)}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground tabular-nums">
+                        {new Date(trade.closedAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            ) : (
+              <div className="text-center py-8">
+                <History className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-muted-foreground text-sm">No trade history</p>
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="text-center py-8">
-            <History className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
-            <p className="text-muted-foreground text-sm">No trade history yet</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Closed trades will appear here
-            </p>
-          </div>
-        )}
+        </div>
+
+        {/* ARKX Rewards Panel */}
+        <div className="lg:col-span-1">
+          <RewardsPanel
+            arkxBalance={0}
+            rewards={[]}
+          />
+        </div>
       </div>
     </div>
   );

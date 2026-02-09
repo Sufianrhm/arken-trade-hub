@@ -6,11 +6,10 @@ export type OrderType = 'market' | 'limit';
 
 export type MarginMode = 'cross' | 'isolated';
 
+// Reduced to top 7 pairs for optimized real-time updates
 export type MarketSymbol = 
-  | 'BTCUSDT' | 'ETHUSDT' | 'SOLUSDT' | 'BNBUSDT' | 'XRPUSDT'
-  | 'ADAUSDT' | 'DOGEUSDT' | 'MATICUSDT' | 'DOTUSDT' | 'AVAXUSDT'
-  | 'LINKUSDT' | 'LTCUSDT' | 'ATOMUSDT' | 'UNIUSDT' | 'NEARUSDT'
-  | 'APTUSDT' | 'ARBUSDT' | 'OPUSDT' | 'SUIUSDT' | 'SEIUSDT';
+  | 'BTCUSDT' | 'ETHUSDT' | 'SOLUSDT' | 'BNBUSDT' 
+  | 'XRPUSDT' | 'DOGEUSDT' | 'SUIUSDT';
 
 export interface Position {
   id: string;
@@ -72,6 +71,14 @@ export interface WaitlistEntry {
   timestamp: number;
 }
 
+export interface ARKXReward {
+  id: string;
+  amount: number;
+  reason: 'trade' | 'referral' | 'streak' | 'achievement';
+  timestamp: number;
+  description: string;
+}
+
 export interface UserAccount {
   id: string;
   username: string;
@@ -87,6 +94,8 @@ export interface UserAccount {
   winRate: number;
   rank?: number;
   badge?: 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
+  arkxBalance: number;
+  arkxRewards: ARKXReward[];
 }
 
 export interface TradingState {
@@ -131,11 +140,10 @@ export interface AIPlan {
   timestamp: number;
 }
 
+// Top 7 crypto pairs only
 export const MARKET_SYMBOLS: MarketSymbol[] = [
-  'BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'BNBUSDT', 'XRPUSDT',
-  'ADAUSDT', 'DOGEUSDT', 'MATICUSDT', 'DOTUSDT', 'AVAXUSDT',
-  'LINKUSDT', 'LTCUSDT', 'ATOMUSDT', 'UNIUSDT', 'NEARUSDT',
-  'APTUSDT', 'ARBUSDT', 'OPUSDT', 'SUIUSDT', 'SEIUSDT',
+  'BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'BNBUSDT', 
+  'XRPUSDT', 'DOGEUSDT', 'SUIUSDT',
 ];
 
 export const MARKET_DISPLAY_NAMES: Record<MarketSymbol, string> = {
@@ -144,42 +152,35 @@ export const MARKET_DISPLAY_NAMES: Record<MarketSymbol, string> = {
   SOLUSDT: 'SOL/USDT',
   BNBUSDT: 'BNB/USDT',
   XRPUSDT: 'XRP/USDT',
-  ADAUSDT: 'ADA/USDT',
   DOGEUSDT: 'DOGE/USDT',
-  MATICUSDT: 'MATIC/USDT',
-  DOTUSDT: 'DOT/USDT',
-  AVAXUSDT: 'AVAX/USDT',
-  LINKUSDT: 'LINK/USDT',
-  LTCUSDT: 'LTC/USDT',
-  ATOMUSDT: 'ATOM/USDT',
-  UNIUSDT: 'UNI/USDT',
-  NEARUSDT: 'NEAR/USDT',
-  APTUSDT: 'APT/USDT',
-  ARBUSDT: 'ARB/USDT',
-  OPUSDT: 'OP/USDT',
   SUIUSDT: 'SUI/USDT',
-  SEIUSDT: 'SEI/USDT',
+};
+
+export const MARKET_ICONS: Record<MarketSymbol, string> = {
+  BTCUSDT: '₿',
+  ETHUSDT: 'Ξ',
+  SOLUSDT: '◎',
+  BNBUSDT: '◈',
+  XRPUSDT: '✕',
+  DOGEUSDT: 'Ð',
+  SUIUSDT: '⬡',
 };
 
 export const DEFAULT_PRICES: Record<MarketSymbol, number> = {
-  BTCUSDT: 70000,
-  ETHUSDT: 2000,
-  SOLUSDT: 85,
-  BNBUSDT: 600,
-  XRPUSDT: 0.6,
-  ADAUSDT: 0.5,
-  DOGEUSDT: 0.15,
-  MATICUSDT: 0.8,
-  DOTUSDT: 7,
-  AVAXUSDT: 35,
-  LINKUSDT: 15,
-  LTCUSDT: 80,
-  ATOMUSDT: 9,
-  UNIUSDT: 10,
-  NEARUSDT: 5,
-  APTUSDT: 10,
-  ARBUSDT: 1.2,
-  OPUSDT: 2.5,
-  SUIUSDT: 1.5,
-  SEIUSDT: 0.5,
+  BTCUSDT: 68000,
+  ETHUSDT: 2020,
+  SOLUSDT: 83,
+  BNBUSDT: 618,
+  XRPUSDT: 1.38,
+  DOGEUSDT: 0.093,
+  SUIUSDT: 0.93,
 };
+
+// Trading fees (simulated)
+export const TRADING_FEES = {
+  maker: 0.0002, // 0.02%
+  taker: 0.0005, // 0.05%
+};
+
+// Leverage options
+export const LEVERAGE_MARKS = [1, 5, 10, 25, 50];
